@@ -1,4 +1,4 @@
-path = mktempdir(tempdir())
+path = mktempdir()
 compile_romeo(path)
 
 @test !isempty(readdir(path))

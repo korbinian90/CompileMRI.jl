@@ -38,8 +38,8 @@ function getargs(args)
             help = "Unwrap only the specified echoes"
             default = ":"
         "--weights", "-w"
-            help = "<4d-weights-file> | bqunwrap | bestpath"
-            default = "bqunwrap"
+            help = "<4d-weights-file> | romeo | bestpath"
+            default = "romeo"
         "--compute-B0", "-B"
             help = "Calculate combined B0 map in [rad/s]"
             action = :store_true
