@@ -3,6 +3,11 @@ uuid = "4e98bb4c-fe77-4837-9a5a-17415e248a88"
 authors = ["Korbinian Eckstein"]
 version = "0.1.0"
 
+[deps]
+MRI = "557dad86-b9bd-4533-8525-1a39684d020f"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
+ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
+
 [compat]
 julia = "1"
 

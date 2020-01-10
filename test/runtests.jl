@@ -2,5 +2,6 @@ using CompileMRI
 using Test
 
 @testset "CompileMRI.jl" begin
-    # Write your own tests here.
+    include("romeo_test.jl")
+    #include("compile_romeo_test.jl")
 end
