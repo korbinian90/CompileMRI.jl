@@ -1,14 +1,24 @@
 module UnwrappingExecutable
 
 using ArgParse
-using MRI
+#using MRI #TODO lib_fftw problem
+# workaround
+using NIfTI
+using ROMEO
+using Statistics
+include(raw"C:\Users\korbi\.julia\dev\MRI\src\utility.jl")
+include(raw"C:\Users\korbi\.julia\dev\MRI\src\romeo.jl")
 
 Base.@ccallable function julia_main(ARGS::Vector{String})::Cint
     try
         unwrapping_main(ARGS)
         return 0
     catch err
-        println("Error: $(err.msg)")
+        if typeof(err) == ErrorException
+            println("Error: $(err.msg)")
+        else
+            @show typeof(err) err
+        end
         return 1
     end
 end
@@ -57,6 +67,7 @@ function getargs(args)
 end
 
 function saveconfiguration(writedir, settings, args)
+    @show writedir
     open(joinpath(writedir, "settings_romeo.txt"), "w") do io
         for (fname, val) in settings
             if !(typeof(val) <: AbstractArray)
@@ -89,7 +100,6 @@ function unwrapping_main(args)
         if isa(y, BoundsError)
             error("echoes=$(settings["unwrap-echoes"]): specified echo out of range! Number of echoes is $neco")
         else
-            #TODO throw with message and print message in caller function
             error("echoes=$(settings["unwrap-echoes"]) wrongly formatted!")
         end
     end
@@ -98,7 +108,7 @@ function unwrapping_main(args)
     hdr.scl_slope = 1
     hdr.scl_inter = 0
 
-    phase = createniiforwriting(view(phasenii,:,:,:,echoes), filename, writedir; header = hdr, datatype = Float32)
+    phase = createniiforwriting(phasenii[:,:,:,echoes], filename, writedir; header=hdr, datatype=Float32)
     @show extrema(phase)
     #phase = view(phasenii,:,:,:,echoes)
 
@@ -148,14 +158,14 @@ function unwrapping_main(args)
 
     if settings["compute-B0"]
         if settings["echo-times"] == nothing
-            error("echo times are required for B0 calculation!")
+            error("echo times are required for B0 calculation! Unwrapping has been performed")
         end
         if !haskey(keyargs, :mag)
             keyargs[:mag] = ones(1,1,1,size(phase,4))
         end
         TEs = reshape(keyargs[:TEs],1,1,1,:)
-        B0 = 1000 * sum(phase .* keyargs[:mag]; dims = 4)
-        B0 ./= sum(keyargs[:mag] .* TEs; dims = 4)
+        B0 = 1000 * sum(phase .* keyargs[:mag]; dims=4)
+        B0 ./= sum(keyargs[:mag] .* TEs; dims=4)
 
         savenii(B0, "B0", writedir, hdr)
     end

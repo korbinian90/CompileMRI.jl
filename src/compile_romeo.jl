@@ -3,7 +3,7 @@ function compile_romeo(path)
     @show path
     try
         cd(@__DIR__)
-        build_executable("UnwrappingExecutable.jl", "romeo"; builddir = path)
+        build_executable("UnwrappingExecutable.jl", "romeo"; builddir=path)
     finally
         cd(d)
     end
