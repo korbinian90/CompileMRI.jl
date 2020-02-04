@@ -4,11 +4,11 @@ using ArgParse
 using MRI
 
 Base.@ccallable function julia_main(ARGS::Vector{String})::Cint
-    ret = unwrapping_main(ARGS)
-    if ret == 0
+    try
+        unwrapping_main(ARGS)
         return 0
-    else
-        println(ret)
+    catch err
+        println("Error: $(err.msg)")
         return 1
     end
 end
@@ -41,10 +41,30 @@ function getargs(args)
             help = "<4d-weights-file> | romeo | bestpath"
             default = "romeo"
         "--compute-B0", "-B"
-            help = "Calculate combined B0 map in [rad/s]"
+            help = "EXPERIMENTAL! Calculate combined B0 map in [rad/s]"
             action = :store_true
+        "--no-mmap", "-N"
+            help = """Deactivate memory mapping.
+                    Memory mapping might cause problems on network storage"""
+            action = :store_false
+        "--threshold", "-T"
+            help = """<maximum number of wraps>
+                    Threshold the unwrapped phase to the maximum number of wraps
+                    Sets values to 0"""
+            default = Inf
     end
-    parse_args(args, s)
+    return parse_args(args, s)
+end
+
+function saveconfiguration(writedir, settings, args)
+    open(joinpath(writedir, "settings_romeo.txt"), "w") do io
+        for (fname, val) in settings
+            if !(typeof(val) <: AbstractArray)
+                println(io, "$fname: " * string(val))
+            end
+        end
+        println(io, """Arguments: $(join(args, " "))""")
+    end
 end
 
 function unwrapping_main(args)
@@ -58,17 +78,19 @@ function unwrapping_main(args)
     end
 
     mkpath(writedir)
+    saveconfiguration(writedir, settings, args)
 
-    phasenii = readphase(settings["phase"], mmap = true)
+    phasenii = readphase(settings["phase"], mmap=!settings["no-mmap"])
     neco = size(phasenii, 4)
 
     echoes = try
         getechoes(settings, neco)
     catch y
         if isa(y, BoundsError)
-            return "ERROR: echoes=$(settings["unwrap-echoes"]): specified echo out of range! Number of echoes is $neco"
+            error("echoes=$(settings["unwrap-echoes"]): specified echo out of range! Number of echoes is $neco")
         else
-            return "ERROR: echoes=$(settings["unwrap-echoes"]) wrongly formatted!"
+            #TODO throw with message and print message in caller function
+            error("echoes=$(settings["unwrap-echoes"]) wrongly formatted!")
         end
     end
 
@@ -77,13 +99,14 @@ function unwrapping_main(args)
     hdr.scl_inter = 0
 
     phase = createniiforwriting(view(phasenii,:,:,:,echoes), filename, writedir; header = hdr, datatype = Float32)
+    @show extrema(phase)
     #phase = view(phasenii,:,:,:,echoes)
 
     keyargs = Dict()
     if settings["magnitude"] != nothing
-        keyargs[:mag] = view(readmag(settings["magnitude"], mmap = true).raw,:,:,:,echoes)
+        keyargs[:mag] = view(readmag(settings["magnitude"], mmap=!settings["no-mmap"]).raw,:,:,:,echoes)
         if size(keyargs[:mag]) != size(phase)
-            return "ERROR: size of magnitude and phase does not match!"
+            error("size of magnitude and phase does not match!")
         end
     end
 
@@ -91,11 +114,11 @@ function unwrapping_main(args)
     if isfile(settings["mask"])
         keyargs[:mask] = niread(settings["mask"]) .!= 0
         if size(keyargs[:mask]) != size(phase)[1:3]
-            return "ERROR: size of mask is $(size(keyargs[:mask])), but it should be $(size(phase)[1:3])!"
+            error("size of mask is $(size(keyargs[:mask])), but it should be $(size(phase)[1:3])!")
         end
     elseif settings["mask"] == "robustmask" && haskey(keyargs, :mag)
         keyargs[:mask] = getrobustmask(keyargs[:mag][:,:,:,1])
-        savenii(keyargs[:mask], "mask", writedir; header = hdr)
+        savenii(keyargs[:mask], "mask", writedir, hdr)
     end
     if length(echoes) > 1
         keyargs[:TEs] = getTEs(settings, neco, echoes)
@@ -108,7 +131,7 @@ function unwrapping_main(args)
 
     ## Error messages
     if 1 < length(echoes) && length(echoes) != length(keyargs[:TEs])
-        return "ERROR: Number of chosen echoes is $(length(echoes)) ($neco in .nii data), but $(length(keyargs[:TEs])) TEs were specified!"
+        error("Number of chosen echoes is $(length(echoes)) ($neco in .nii data), but $(length(keyargs[:TEs])) TEs were specified!")
     end
 
     if settings["individual-unwrapping"] && length(echoes) > 1
@@ -117,16 +140,22 @@ function unwrapping_main(args)
         unwrap!(phase; keyargs...)
     end
 
+    if settings["threshold"] != Inf
+        max = settings["threshold"] * 2π
+        phase[phase .> max] .= 0
+        phase[phase .< -max] .= 0
+    end
+
     if settings["compute-B0"]
         if settings["echo-times"] == nothing
-            return "ERROR: echo times are required for B0 calculation!"
+            error("echo times are required for B0 calculation!")
         end
         if !haskey(keyargs, :mag)
             keyargs[:mag] = ones(1,1,1,size(phase,4))
         end
         TEs = reshape(keyargs[:TEs],1,1,1,:)
-        B0 = 1000 * sum(phase ./ TEs .* keyargs[:mag]; dims = 4)
-        B0 ./= sum(keyargs[:mag]; dims = 4)
+        B0 = 1000 * sum(phase .* keyargs[:mag]; dims = 4)
+        B0 ./= sum(keyargs[:mag] .* TEs; dims = 4)
 
         savenii(B0, "B0", writedir, hdr)
     end
