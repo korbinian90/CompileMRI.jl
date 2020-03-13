@@ -1,27 +1,7 @@
-module UnwrappingExecutable
+module RomeoApp
 
 using ArgParse
-#using MRI #TODO lib_fftw problem
-# workaround
-using NIfTI
-using ROMEO
-using Statistics
-include(raw"C:\Users\korbi\.julia\dev\MRI\src\utility.jl")
-include(raw"C:\Users\korbi\.julia\dev\MRI\src\romeo.jl")
-
-Base.@ccallable function julia_main(ARGS::Vector{String})::Cint
-    try
-        unwrapping_main(ARGS)
-        return 0
-    catch err
-        if typeof(err) == ErrorException
-            println("Error: $(err.msg)")
-        else
-            @show typeof(err) err
-        end
-        return 1
-    end
-end
+using MriResearchTool
 
 function getargs(args)
     if isempty(args) args = ["--help"] end
@@ -194,6 +174,16 @@ function getTEs(settings, neco, echoes)
         TEs = (1:neco)[echoes]
     end
     return TEs
+end
+
+julia_main()::Cint
+    try
+        unwrapping_main(ARGS)
+    catch
+        Base.invokelatest(Base.display_error, Base.catch_stack())
+        return 1
+    end
+    return 0
 end
 
 end # module

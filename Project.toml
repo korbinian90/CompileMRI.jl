@@ -4,12 +4,10 @@ authors = ["Korbinian Eckstein"]
 version = "0.1.0"
 
 [deps]
-ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
-NIfTI = "f897abbf-c5d9-45cb-bf89-9f7f579a29ec"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
-ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
 
 [compat]
+PackageCompiler = "1"
 julia = "1"
 
 [extras]
