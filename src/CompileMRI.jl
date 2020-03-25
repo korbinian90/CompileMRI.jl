@@ -1,6 +1,7 @@
 module CompileMRI
 
     using PackageCompiler
+    using RomeoApp
 
     include("compile_romeo.jl")
 
