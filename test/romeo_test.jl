@@ -1,18 +1,18 @@
-include("../src/UnwrappingExecutable.jl")
-phasefile = raw"F:\MRI\scanner_nifti\Paper\SWI_paper_7T_volunteers\19930503JSPC_201907041530\nifti\4\reform\Image.nii"
-magfile = raw"F:\MRI\scanner_nifti\Paper\SWI_paper_7T_volunteers\19930503JSPC_201907041530\nifti\3\reform\Image.nii"
+@testset "ROMEO function tests" begin
 
-file = tempname()
-args = [phasefile, "-o", raw"F:\MRI\Analysis\Volunteer7T\phase\romeo", "-m", magfile]
-UnwrappingExecutable.unwrapping_main(args)
-#rm(file)
+phasefile = joinpath("data", "small", "Phase.nii")
+magfile = joinpath("data", "small", "Mag.nii")
 
-args = [phasefile, "-o", raw"F:\MRI\Analysis\Volunteer7T\phase\romeo", "-B"]
+function test_romeo(args)
+    file = tempname()
+    args = [args..., "-o", file]
+    RomeoApp.unwrapping_main(args)
+end
 
-try
-    UnwrappingExecutable.unwrapping_main(args)
-catch e
-    println(e.msg)
-finally
-    GC.gc()
+args = [phasefile, "-B"]
+test_romeo(args)
+
+args = [phasefile, "-m", magfile]
+test_romeo(args)
+
 end

@@ -1,7 +1,7 @@
 module RomeoApp
 
 using ArgParse
-using MriResearchTool
+using MriResearchTools
 
 function getargs(args)
     if isempty(args) args = ["--help"] end
@@ -176,7 +176,7 @@ function getTEs(settings, neco, echoes)
     return TEs
 end
 
-julia_main()::Cint
+function julia_main()::Cint
     try
         unwrapping_main(ARGS)
     catch

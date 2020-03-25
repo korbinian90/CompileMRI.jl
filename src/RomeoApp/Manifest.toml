@@ -64,6 +64,7 @@ uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 version = "0.12.5"
 
 [[LibGit2]]
+deps = ["Printf"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
 
 [[Libdl]]
@@ -91,9 +92,9 @@ uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[MriResearchTools]]
 deps = ["FFTW", "Interpolations", "NIfTI", "NaNMath", "ROMEO", "Statistics"]
-git-tree-sha1 = "363f469ef928985eedc9ef4058e6e0fc076ca249"
+git-tree-sha1 = "a76608d07406b03885e727dec96e6ae164d5b91c"
 uuid = "557dad86-b9bd-4533-8525-1a39684d020f"
-version = "0.1.1"
+version = "0.1.2"
 
 [[NIfTI]]
 deps = ["Base64", "GZip", "Mmap", "Test"]
@@ -112,7 +113,7 @@ uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 version = "1.0.3"
 
 [[Pkg]]
-deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Test", "UUIDs"]
+deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[Printf]]
