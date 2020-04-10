@@ -1,7 +1,8 @@
 @testset "ROMEO compile tests" begin
 
 path = tempname()
-compile_romeo(path)
+app_name = "romeo"
+compile_romeo(path; app_name=app_name, filter_stdlibs=true, audit=true, precompile_execution_file=abspath("romeo_test.jl"))
 
 @test !isempty(readdir(path))
 
@@ -11,7 +12,7 @@ magfile = joinpath(pwd(), "data", "small", "Mag.nii")
 function test_romeo(args)
     file = tempname()
     args = [args..., "-o", file]
-    name = "RomeoApp" * (Sys.iswindows() ? ".exe" : "")
+    name = app_name * (Sys.iswindows() ? ".exe" : "")
     romeofile = joinpath(path, "bin", name)
     @test isfile(romeofile)
     cmd = `$romeofile $args`
