@@ -11,7 +11,7 @@ magfile = joinpath(pwd(), "data", "small", "Mag.nii")
 function test_romeo(args)
     file = tempname()
     args = [args..., "-o", file]
-    name = app_name * (Sys.iswindows() ? ".exe" : "")
+    name = "romeo" * (Sys.iswindows() ? ".exe" : "")
     romeofile = joinpath(path, "bin", name)
     @test isfile(romeofile)
     cmd = `$romeofile $args`
