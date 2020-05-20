@@ -1,8 +1,7 @@
 @testset "ROMEO compile tests" begin
 
 path = tempname()
-app_name = "romeo"
-compile_romeo(path; app_name=app_name, filter_stdlibs=true, audit=true, precompile_execution_file=abspath("romeo_test.jl"))
+compile_romeo(path; audit=true)
 
 @test !isempty(readdir(path))
 
