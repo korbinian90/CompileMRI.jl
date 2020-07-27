@@ -1,4 +1,7 @@
+using Pkg
 using RomeoApp
+Pkg.test("RomeoApp")
+@show "test finished"
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
 

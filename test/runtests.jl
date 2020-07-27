@@ -1,5 +1,4 @@
 using CompileMRI
-using RomeoApp
 using Test
 
 @testset "CompileMRI.jl" begin
