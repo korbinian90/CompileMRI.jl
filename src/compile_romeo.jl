@@ -1,6 +1,6 @@
 function compile_romeo(path;
         app_name="romeo",
-        filter_stdlibs=true,
+        filter_stdlibs=false,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "romeo_test.jl")),
         kw...)
     romeopath = joinpath(pathof(RomeoApp), "..", "..")
