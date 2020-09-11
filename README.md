@@ -6,7 +6,7 @@
 
 1. Install Julia
 
-   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.3 or newer is required, some package managers install outdated versions)
+   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.5 or newer is required, some package managers install outdated versions)
 
 2. Install RomeoApp and CompileMRI
 
@@ -16,8 +16,8 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.4) pkg> add https://github.com/korbinian90/RomeoApp.jl
-   (@v1.4) pkg> add https://github.com/korbinian90/CompileMRI.jl
+   (@v1.5) pkg> add https://github.com/korbinian90/RomeoApp.jl
+   (@v1.5) pkg> add https://github.com/korbinian90/CompileMRI.jl
    # All dependencies are installed automatically
    ```
 
