@@ -16,8 +16,8 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.4) pkg> add https://github.com/korbinian90/RomeoApp.jl
-   (@v1.4) pkg> add https://github.com/korbinian90/CompileMRI.jl
+   (@v1.5) pkg> add https://github.com/korbinian90/RomeoApp.jl
+   (@v1.5) pkg> add https://github.com/korbinian90/CompileMRI.jl
    # All dependencies are installed automatically
    ```
 
@@ -27,3 +27,18 @@
    julia> using CompileMRI
    julia> compile_romeo("/tmp/romeo_compiled")
    ```
+
+4. Update to newest version  
+   To update to the newest version of the packages, type in the Julia REPL (Package manager):
+   ```julia
+   julia> ] up # updates all packages
+   or
+   julia> ] up RomeoApp
+   ```
+
+## Known problems
+
+On linux there might occur a problem regarding the permission of the Julia folders. Manually changing the permissions for the specific folder should fix the problem.
+``` 
+ERROR: SystemError: opening file "/<path>/RomeoApp/Project.toml"
+```
