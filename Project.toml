@@ -9,7 +9,7 @@ RomeoApp = "6ec04266-ba88-41a1-94ab-4aa3de757d7e"
 
 [compat]
 PackageCompiler = "1"
-RomeoApp = "0.2"
+RomeoApp = "0.2, 0.3"
 julia = "1.5"
 
 [extras]
