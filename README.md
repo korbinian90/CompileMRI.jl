@@ -27,3 +27,8 @@
    julia> using CompileMRI
    julia> compile_romeo("/tmp/romeo_compiled")
    ```
+
+## Known Problems
+### Permission Denied
+If the compilation fails with Permission Denied, the folder `<user>/.julia/packages/RomeoApp` needs write permission. In that case, changing the permission and rerunning the command with `compile_romeo("/tmp/romeo_compiled"; force=true)` should work. (`force=true` is required, as the folder `/tmp/romeo_compiled` is already existing and previous content will be overwritten)
+   
