@@ -13,7 +13,7 @@
    Start Julia (Type julia in the command line or start the installed Julia executable)
 
    Type the following in the Julia REPL:
-   ```
+   ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
    (@v1.5) pkg> add https://github.com/korbinian90/RomeoApp.jl#master
@@ -38,7 +38,7 @@
 
 ## Known problems
 ### Permission Denied
+``` 
+ERROR: SystemError: opening file "/<path>/RomeoApp/<subfolder>/Project.toml"
+``` 
 If the compilation fails with Permission Denied, the folder `<user>/.julia/packages/RomeoApp` needs write permission. In that case, changing the permission and rerunning the command with `compile_romeo("/tmp/romeo_compiled"; force=true)` should work. (`force=true` is required, as the folder `/tmp/romeo_compiled` is already existing and previous content will be overwritten)
-``` 
-ERROR: SystemError: opening file "/<path>/RomeoApp/Project.toml"
-``` 
