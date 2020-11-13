@@ -6,7 +6,7 @@
 
 1. Install Julia
 
-   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.3 or newer is required, some package managers install outdated versions)
+   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.5 or newer is required, some package managers install outdated versions)
 
 2. Install RomeoApp and CompileMRI
 
@@ -37,8 +37,8 @@
    ```
 
 ## Known problems
-
-On linux there might occur a problem regarding the permission of the Julia folders. Manually changing the permissions for the specific folder should fix the problem.
+### Permission Denied
+If the compilation fails with Permission Denied, the folder `<user>/.julia/packages/RomeoApp` needs write permission. In that case, changing the permission and rerunning the command with `compile_romeo("/tmp/romeo_compiled"; force=true)` should work. (`force=true` is required, as the folder `/tmp/romeo_compiled` is already existing and previous content will be overwritten)
 ``` 
 ERROR: SystemError: opening file "/<path>/RomeoApp/Project.toml"
-```
+``` 
