@@ -15,8 +15,9 @@ end
 pathof(app) = normpath(homedir(), ".julia/dev", app)
 
 function clean_app(path)
-    if isdir(path)
-        rm(joinpath(path, "artifacts"); recursive=true)
+    artifact_path = joinpath(path, "artifacts")
+    if isdir(artifact_path)
+        rm(artifact_path; recursive=true)
     else
         println("No artifacts in $path")
     end
