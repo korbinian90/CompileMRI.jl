@@ -4,6 +4,6 @@ module CompileMRI
 
     include("compile_romeo.jl")
 
-    export compile_romeo, update_romeoapp
+    export compile_romeo, update_romeo
 
 end # module

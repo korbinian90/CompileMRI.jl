@@ -38,7 +38,7 @@ function download_pkg(pkg)
     Pkg.instantiate()
 end
 
-function update_romeoapp()
+function update_romeo()
     rm(pathof("RomeoApp"); force=true, recursive=true)
-    download_romeoapp()
+    download_pkg("RomeoApp")
 end
