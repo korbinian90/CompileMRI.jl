@@ -4,9 +4,7 @@ function compile_romeo(path;
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "romeo_test.jl")),
         kw...)
     romeopath = joinpath(pathof(RomeoApp), "..", "..")
-    tmp_romeopath = mktempdir()
-    cp(romeopath, tmp_romeopath; force=true)
-    create_app(tmp_romeopath, path; app_name=app_name, filter_stdlibs=filter_stdlibs, precompile_execution_file=precompile_execution_file, kw...)
+    create_app(romeopath, path; app_name=app_name, filter_stdlibs=filter_stdlibs, precompile_execution_file=precompile_execution_file, kw...)
     clean_app(path) # remove unneccesary artifacts dir (600MB)
     test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
 end
