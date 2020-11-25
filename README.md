@@ -16,7 +16,6 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.5) pkg> add https://github.com/korbinian90/RomeoApp.jl#master
    (@v1.5) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
    # All dependencies are installed automatically
    ```
@@ -33,11 +32,16 @@
    ```
    
 ### Update to newest version
-To update to the newest version of the packages, type in the Julia REPL (Package manager):
+To update to the newest version of the packages, type in the Julia REPL (Package manager):  
+**CompileMRI**
+```
+julia> ] up CompileMRI
+```
+**RomeoApp**
 ```julia
-julia> ] up # updates all packages
-or
-julia> ] up RomeoApp
+   julia> using CompileMRI
+   julia> update_romeo()
+   julia> ] up # required to update depending packages
 ```
 
 ## Known problems

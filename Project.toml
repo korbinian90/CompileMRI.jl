@@ -5,7 +5,7 @@ version = "0.2.1"
 
 [deps]
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
-RomeoApp = "6ec04266-ba88-41a1-94ab-4aa3de757d7e"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [compat]
 PackageCompiler = "1"
