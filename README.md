@@ -1,6 +1,6 @@
 # CompileMRI
 
-[![Build Status](https://travis-ci.com/korbinian90/CompileMRI.jl.svg?branch=master)](https://travis-ci.com/korbinian90/CompileMRI.jl)
+[![Build Status](https://github.com/korbinian90/CompileMRI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CompileMRI.jl/actions)
 
 ## Compile ROMEO
 
