@@ -35,4 +35,9 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
+      - run: |
+          julia --project -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path="https://github.com/korbinian90/RomeoApp.jl"))
+            Pkg.instantiate()'
       - uses: julia-actions/julia-runtest@latest
