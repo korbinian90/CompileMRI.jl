@@ -1,8 +1,16 @@
 using CompileMRI
 using Test
+using Pkg
 
-if !isdir(romeopath)
-    download_pkg("RomeoApp")
+try
+    using RomeoApp
+catch
+    if !isdir(CompileMRI.pathof("RomeoApp"))
+        CompileMRI.download_pkg("RomeoApp")
+    else
+        Pkg.develop("RomeoApp")
+    end
+    using RomeoApp
 end
 
 @testset "CompileMRI.jl" begin
