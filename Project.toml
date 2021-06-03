@@ -1,11 +1,12 @@
 name = "CompileMRI"
 uuid = "4e98bb4c-fe77-4837-9a5a-17415e248a88"
 authors = ["Korbinian Eckstein"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+RomeoApp = "6ec04266-ba88-41a1-94ab-4aa3de757d7e"
 
 [compat]
 PackageCompiler = "1"
