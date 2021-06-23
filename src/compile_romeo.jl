@@ -76,6 +76,10 @@ function download_pkg(pkg)
 end
 
 function update_romeo()
-    rm(pathof("RomeoApp"); force=true, recursive=true)
+    try 
+        rm(pathof("RomeoApp"); force=true, recursive=true)
+    catch 
+        @warn "Couldn't remove the old RomeoApp folder! ($(pathof("RomeoApp"))) Maybe it is opened in another App"
+    end
     download_pkg("RomeoApp")
 end
