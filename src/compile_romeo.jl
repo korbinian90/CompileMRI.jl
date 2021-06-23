@@ -32,7 +32,7 @@ function clean_app(path, app_name)
     end
     
     try
-        test_romeo(path, app_name)
+        test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
         rm(artifact_tmp_path; recursive=true) # only removed if test was successfull
     catch
         @warn("Artifacts could not be downloaded automatically")
@@ -45,7 +45,7 @@ function clean_app(path, app_name)
     end
 
     try
-        test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
+        test_romeo(path, app_name)
     catch
         @warn("Artifact cleaning failed! Please recompile romeo with the option `clean=false`. The artifacts folder will be very large but some of them might not needed and can be manually removed.")
     end
