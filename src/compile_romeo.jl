@@ -36,6 +36,7 @@ function clean_app(path, app_name)
         rm(artifact_tmp_path; recursive=true) # only removed if test was successfull
     catch
         @warn("Artifacts could not be downloaded automatically")
+        rm(artifact_path; recursive=true, force=true) # delete partly downloaded artifacts, does not complain if not existing
         mv(artifact_tmp_path, artifact_path)
         @warn("Trying to remove large and unneccessary mkl artifact")
         mkl_path = findartifactpath(artifact_path, "mkl")
