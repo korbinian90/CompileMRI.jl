@@ -8,7 +8,7 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     romeo_binary = fullfile(romeo_path, romeo_name); 
     
     output_dir = pwd();
-    if isfield(parameter, 'output_dir')
+    if isfield(parameters, 'output_dir')
         output_dir = parameters.output_dir;
     end
     
@@ -22,7 +22,7 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
         phase_nii.hdr.dime.pixdim(2:4) = parameters.voxel_size;
     end
     save_nii(phase_nii, fn_phase);
-    if ifield(parameters, 'mag') && ~isempty(parameters.mag)
+    if isfield(parameters, 'mag') && ~isempty(parameters.mag)
         save_nii(make_nii(parameters.mag), fn_mag);
     end
     if isfield(parameters, 'mask') && isnumeric(parameters.mask)
