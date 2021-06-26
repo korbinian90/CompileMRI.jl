@@ -13,6 +13,7 @@ function compile_romeo(path;
     if clean
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
     end
+    copy_matlab(path)
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)
@@ -83,4 +84,8 @@ function update_romeo()
         @warn "Couldn't remove the old RomeoApp folder! ($(pathof("RomeoApp"))) Maybe it is opened in another App"
     end
     download_pkg("RomeoApp")
+end
+
+function copy_matlab(path)
+    cp(joinpath(dirname(@__DIR__), "matlab"), joinpath(path, "matlab"))
 end
