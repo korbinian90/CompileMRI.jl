@@ -50,10 +50,13 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     if isfield(parameters, 'TE')
         cmd_echo_times = [' -t ' mat2str(parameters.TE)];
     end
-    if isfield(parameters, 'mask') && isnumeric(parameters.mask)
-        cmd_mask = [' -k ' fn_mask];
-    else
-        cmd_mask = [' -k ' parameters.mask];
+    cmd_mask = '';
+    if isfield(parameters, 'mask')
+        if isnumeric(parameters.mask)
+            cmd_mask = [' -k ' fn_mask];
+        else
+            cmd_mask = [' -k ' parameters.mask];
+        end
     end
     cmd_phase_offset_correction = '';
     if isfield(parameters, 'phase_offset_correction')
@@ -61,7 +64,7 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     end
     additional_flags = '';
     if isfield(parameters, 'additional_flags')
-        additional_flags = parameters.additional_flags;
+        additional_flags = [' ' parameters.additional_flags];
     end
     
     % Create romeo CMD command
