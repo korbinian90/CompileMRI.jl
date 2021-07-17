@@ -13,5 +13,5 @@ end
 args = [phasefile, "-B", "-t", "1:3"]
 test_romeo(args)
 
-args = [phasefile, "-m", "-t", "1:3", magfile]
+args = [phasefile, "-m", magfile, "-t", "1:3"]
 test_romeo(args)
