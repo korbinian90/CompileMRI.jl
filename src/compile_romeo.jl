@@ -64,7 +64,7 @@ end
 function test_romeo(path, app_name)
     file = tempname()
     phasefile = abspath(joinpath(@__DIR__, "..", "test", "data", "small", "Phase.nii"))
-    args = [phasefile, "-o", file]
+    args = [phasefile, "-o", "-t", "1:3", file]
     name = app_name * (Sys.iswindows() ? ".exe" : "")
     romeofile = joinpath(path, "bin", name)
     @assert isfile(romeofile)
