@@ -14,6 +14,7 @@ function compile_romeo(path;
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
     end
     copy_matlab(path)
+    println("Success! Romeo compiled and tested!")
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)
@@ -36,10 +37,10 @@ function clean_app(path, app_name)
         test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
         rm(artifact_tmp_path; recursive=true) # only removed if test was successfull
     catch
-        @warn("Artifacts could not be downloaded automatically")
+        println("Artifacts could not be downloaded automatically")
         rm(artifact_path; recursive=true, force=true) # delete partly downloaded artifacts, does not complain if not existing
         mv(artifact_tmp_path, artifact_path)
-        @warn("Trying to remove large and unneccessary mkl artifact")
+        println("Removing large and unneccessary mkl artifact")
         mkl_path = findartifactpath(artifact_path, "mkl")
         if !isnothing(mkl_path)
             rm(mkl_path; recursive=true)
@@ -64,7 +65,7 @@ end
 function test_romeo(path, app_name)
     file = tempname()
     phasefile = abspath(joinpath(@__DIR__, "..", "test", "data", "small", "Phase.nii"))
-    args = [phasefile, "-o", file]
+    args = [phasefile, "-o", file, "-k", "nomask"]
     name = app_name * (Sys.iswindows() ? ".exe" : "")
     romeofile = joinpath(path, "bin", name)
     @assert isfile(romeofile)
