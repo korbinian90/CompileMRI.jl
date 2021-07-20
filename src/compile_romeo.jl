@@ -14,7 +14,7 @@ function compile_romeo(path;
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
     end
     copy_matlab(path)
-    printstyled("Success! Romeo compiled and tested!"; color=:green)
+    printstyled("Success! Romeo compiled and tested!\n"; color=:green)
     @warn("Relocatability has to be tested manually!")
 end
 
