@@ -14,7 +14,8 @@ function compile_romeo(path;
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
     end
     copy_matlab(path)
-    println("Success! Romeo compiled and tested!")
+    printstyled("Success! Romeo compiled and tested!"; color=:green)
+    @warn("Relocatability has to be tested manually!")
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)
@@ -37,10 +38,10 @@ function clean_app(path, app_name)
         test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
         rm(artifact_tmp_path; recursive=true) # only removed if test was successfull
     catch
-        println("Artifacts could not be downloaded automatically")
+        @warn("Artifacts could not be downloaded automatically")
         rm(artifact_path; recursive=true, force=true) # delete partly downloaded artifacts, does not complain if not existing
         mv(artifact_tmp_path, artifact_path)
-        println("Removing large and unneccessary mkl artifact")
+        println("Using all artifacts and only removing large and unneccessary mkl artifact")
         mkl_path = findartifactpath(artifact_path, "mkl")
         if !isnothing(mkl_path)
             rm(mkl_path; recursive=true)
