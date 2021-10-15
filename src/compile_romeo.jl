@@ -30,11 +30,21 @@ function clean_app(path, app_name)
     end
     
     mkl_path = findartifactpath(artifact_path, "mkl")
-    for f in readdir(joinpath(mkl_path, "bin"); join=true)
-        if !(occursin("mkl_core.1.dll", f) || occursin("mkl_rt.1.dll", f))
-            rm(f)
+    if isdir(joinpath(mkl_path, "bin"))
+        for f in readdir(joinpath(mkl_path, "bin"); join=true)
+            if !(occursin("mkl_core.1.dll", f) || occursin("mkl_rt.1.dll", f))
+                rm(f)
+            end
         end
     end
+    if isdir(joinpath(mkl_path, "lib"))
+        for f in readdir(joinpath(mkl_path, "lib"); join=true)
+            if !(occursin("libmkl_core.so", f) || occursin("libmkl_rt.so", f))
+                rm(f)
+            end
+        end
+    end
+
 
     try
         test_romeo(path, app_name)
