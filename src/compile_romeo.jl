@@ -1,6 +1,6 @@
 function compile_romeo(path;
         app_name="romeo",
-        filter_stdlibs=false,
+        filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "romeo_test.jl")),
         clean=true,
         kw...)
@@ -8,7 +8,7 @@ function compile_romeo(path;
     if !isdir(romeopath)
         download_pkg("RomeoApp")
     end
-    create_app(romeopath, path; app_name=app_name, filter_stdlibs=filter_stdlibs, precompile_execution_file=precompile_execution_file, kw...)
+    create_app(romeopath, path; app_name, filter_stdlibs, precompile_execution_file, kw...)
     test_romeo(path, app_name)
     if clean
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
@@ -21,30 +21,18 @@ end
 pathof(app) = normpath(homedir(), ".julia/dev", app)
 
 function clean_app(path, app_name)
-    # move artifacts dir
-    # test if artifacts can be downloaded
-    # if not, move back
-    # remove mkl artifact
-    # test again
-    artifact_path = joinpath(path, "artifacts")
-    artifact_tmp_path = joinpath(path, "artifacts_tmp")
-    if isdir(artifact_path)
-        mv(artifact_path, artifact_tmp_path)
-    else
-        println("No artifacts in $path")
+    # remove all dlls in mkl artifact but keep
+    # mkl_core.1.dll and mkl_rt.1.dll
+
+    artifact_path = joinpath(path, "share", "julia", "artifacts")
+    if !ispath(artifact_path)
+        artifact_path = joinpath(path, "artifacts")
     end
     
-    try
-        test_romeo(path, app_name) # required artifacts should be downloaded (<10MB)
-        rm(artifact_tmp_path; recursive=true) # only removed if test was successfull
-    catch
-        @warn("Artifacts could not be downloaded automatically")
-        rm(artifact_path; recursive=true, force=true) # delete partly downloaded artifacts, does not complain if not existing
-        mv(artifact_tmp_path, artifact_path)
-        println("Using all artifacts and only removing large and unneccessary mkl artifact")
-        mkl_path = findartifactpath(artifact_path, "mkl")
-        if !isnothing(mkl_path)
-            rm(mkl_path; recursive=true)
+    mkl_path = findartifactpath(artifact_path, "mkl")
+    for f in readdir(joinpath(mkl_path, "bin"); join=true)
+        if !(occursin("mkl_core.1.dll", f) || occursin("mkl_rt.1.dll", f))
+            rm(f)
         end
     end
 
