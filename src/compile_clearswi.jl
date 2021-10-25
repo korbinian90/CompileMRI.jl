@@ -4,11 +4,11 @@ function compile_clearswi(path;
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
         clean=true,
         kw...)
+    if !isdir(pathof("CLEARSWI"))
+        download_pkg("CLEARSWI")
+    end
     clearswiapppath = pathof("ClearswiApp")
     if !isdir(clearswiapppath)
-        if !isdir(pathof("CLEARSWI"))
-            download_pkg("CLEARSWI")
-        end
         download_pkg("ClearswiApp")
     end
     create_app(clearswiapppath, path; app_name, filter_stdlibs, precompile_execution_file, kw...)
