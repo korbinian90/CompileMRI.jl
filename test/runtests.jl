@@ -13,7 +13,23 @@ catch
     using RomeoApp
 end
 
-@testset "CompileMRI.jl" begin
+@testset "Compile ROMEO" begin
     include("romeo_test.jl")
     include("compile_romeo_test.jl")
+end
+
+try
+    using ClearswiApp
+catch
+    if !isdir(CompileMRI.pathof("ClearswiApp"))
+        CompileMRI.download_pkg("ClearswiApp")
+    else
+        Pkg.develop("ClearswiApp")
+    end
+    using ClearswiApp
+end
+
+@testset "Compile CLEARSWI" begin
+    include("clearswi_test.jl")
+    include("compile_clearswi_test.jl")
 end
