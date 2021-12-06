@@ -1,5 +1,11 @@
-function download_pkg(pkg)
-    Pkg.develop(PackageSpec(path="https://github.com/korbinian90/$pkg.jl"))
+function download_pkg(pkg, subpkgs=nothing)
+    Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
+    if !isnothing(subpkgs)
+        Pkg.activate(pathof(pkg))
+        for subpkg in subpkgs
+            Pkg.add(PackageSpec(;url="https://github.com/korbinian90/$subpkg.jl"))
+        end
+    end
     Pkg.instantiate()
 end
 

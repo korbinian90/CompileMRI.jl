@@ -4,12 +4,9 @@ function compile_clearswi(path;
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
         clean=false,
         kw...)
-    if !isdir(pathof("CLEARSWI"))
-        download_pkg("CLEARSWI")
-    end
     clearswiapppath = pathof("ClearswiApp")
     if !isdir(clearswiapppath)
-        download_pkg("ClearswiApp")
+        download_pkg("ClearswiApp", ["CLEARSWI"])
     end
     create_app(clearswiapppath, path; executables=[app_name=>"julia_main"], filter_stdlibs, precompile_execution_file, kw...)
     test_clearswi(path, app_name)
