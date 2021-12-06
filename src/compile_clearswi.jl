@@ -2,7 +2,7 @@ function compile_clearswi(path;
         app_name="clearswi",
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
-        clean=true,
+        clean=false,
         kw...)
     if !isdir(pathof("CLEARSWI"))
         download_pkg("CLEARSWI")
@@ -11,7 +11,7 @@ function compile_clearswi(path;
     if !isdir(clearswiapppath)
         download_pkg("ClearswiApp")
     end
-    create_app(clearswiapppath, path; app_name, filter_stdlibs, precompile_execution_file, kw...)
+    create_app(clearswiapppath, path; executables=[app_name=>"julia_main"], filter_stdlibs, precompile_execution_file, kw...)
     test_clearswi(path, app_name)
     if clean
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)

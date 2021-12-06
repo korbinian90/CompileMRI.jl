@@ -2,13 +2,13 @@ function compile_romeo(path;
         app_name="romeo",
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "romeo_test.jl")),
-        clean=true,
+        clean=false,
         kw...)
     romeopath = pathof("RomeoApp")
     if !isdir(romeopath)
         download_pkg("RomeoApp")
     end
-    create_app(romeopath, path; app_name, filter_stdlibs, precompile_execution_file, kw...)
+    create_app(romeopath, path; executables=[app_name=>"julia_main"], filter_stdlibs, precompile_execution_file, kw...)
     test_romeo(path, app_name)
     if clean
         clean_app(path, app_name) # remove unneccesary artifacts dir (600MB)
