@@ -16,7 +16,7 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.6) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
+   (@v1.6) pkg> add https://github.com/korbinian90/CompileMRI.jl#stable
    # All dependencies are installed automatically
    ```
 
