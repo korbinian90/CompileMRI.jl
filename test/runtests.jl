@@ -1,7 +1,7 @@
 using CompileMRI
 using Test
 using Pkg
-
+#=
 try
     using RomeoApp
 catch
@@ -13,9 +13,8 @@ catch
     using RomeoApp
 end
 
-@testset "Compile ROMEO" begin
+@testset "ROMEO" begin
     include("romeo_test.jl")
-    include("compile_romeo_test.jl")
 end
 
 try
@@ -29,7 +28,11 @@ catch
     using ClearswiApp
 end
 
-@testset "Compile CLEARSWI" begin
+@testset "CLEARSWI" begin
     include("clearswi_test.jl")
-    include("compile_clearswi_test.jl")
+end
+=#
+
+@testset "Compile Test" begin
+    include("compile_test.jl")
 end

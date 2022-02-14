@@ -1,8 +1,5 @@
 # CompileMRI
-
-[![Build Status](https://github.com/korbinian90/CompileMRI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CompileMRI.jl/actions)
-
-## Compile ROMEO
+## Compile ROMEO and CLEAR-SWI
 
 1. Install Julia
 
@@ -20,15 +17,19 @@
    # All dependencies are installed automatically
    ```
 
-3. Compile ROMEO into a command line binary
+3. Create a command line executable
 
    ```julia
    julia> using CompileMRI
-   julia> compile_romeo("/tmp/romeo_compiled")
+   julia> compile("/tmp/compiled")
    ```
-   If the folder to output the binary (here `/tmp/romeo_compiled`) already exists, the additional keyword argument `force=true` is required:
+   If the folder to output the binary (here `/tmp/compiled`) already exists, the additional keyword argument `force=true` is required:
    ```julia
-   julia> compile_romeo("/tmp/romeo_compiled"; force=true)
+   julia> compile("/tmp/compiled"; force=true)
+   ```
+   If only one app should be compiled, use the syntax
+   ```julia
+   julia> compile("/tmp/compiled"; apps=["romeo"])
    ```
    
 ### Update to newest version
@@ -37,10 +38,11 @@ To update to the newest version of the packages, type in the Julia REPL (Package
 ```
 julia> ] up CompileMRI
 ```
-**RomeoApp**
+**ROMEO and CLEAR-SWI**
 ```julia
    julia> using CompileMRI
-   julia> update_romeo()
+   julia> update("romeo")
+   julia> update("clearswi")
    julia> ] up # required to update depending packages
 ```
 
@@ -55,6 +57,6 @@ $ chmod 777 /<path>/RomeoApp/<subfolder>
 ```
 and rerunning the command with
 ```julia
-julia> compile_romeo("/tmp/romeo_compiled"; force=true)
+julia> compile("/tmp/compiled"; force=true)
 ```
 should work.
