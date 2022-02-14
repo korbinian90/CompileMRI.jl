@@ -2,7 +2,3 @@ name = "App"
 uuid = "d128dbd7-c220-4b47-8215-94b2c1b98d91"
 authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
 version = "0.1.0"
-
-[deps]
-ClearswiApp = "05b4817b-e4a0-4589-8b6a-5b9ef9b94bee"
-RomeoApp = "6ec04266-ba88-41a1-94ab-4aa3de757d7e"

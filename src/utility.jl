@@ -1,9 +1,18 @@
 function check_pkg(name)
-    app_name = get_appname(name)
-    apppath = pathof(app_name)
-    if !isdir(apppath)
-        download_pkg(app_name)
+    try
+        Pkg.activate(get_apppath())
+        Pkg.instantiate()
+    catch
     end
+    try
+        download_pkg(get_appname(name))
+    catch
+    end
+    Pkg.activate()
+end
+
+function get_apppath()
+    return @show joinpath(dirname(@__DIR__), "App")
 end
 
 function get_appname(name)
@@ -13,14 +22,16 @@ end
 function download_pkg(pkg, subpkgs=nothing)
     if (isnothing(subpkgs) && pkg == "ClearswiApp") return download_pkg(pkg, ["CLEARSWI"]) end
 
+    Pkg.activate(get_apppath())
     if !isnothing(subpkgs)
         for subpkg in subpkgs
             Pkg.add(PackageSpec(;url="https://github.com/korbinian90/$subpkg.jl"))
         end
     end
     Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
-
     Pkg.instantiate()
+
+    Pkg.activate()
 end
 
 function findartifactpath(pth, name)
@@ -80,14 +91,14 @@ function copy_mkl(path)
     end
 end
 
-function update(name)
-    app_name = get_appname(name)
-    try 
-        rm(pathof(app_name); force=true, recursive=true)
-    catch 
-        @warn "Couldn't remove the old $app_name folder! ($(pathof(app_name))) Maybe it is opened in another App"
+function update()
+    Pkg.activate(get_apppath())
+    for name in ["clearswi", "romeo"]
+        app_name = get_appname(name)
+        Pkg.update(app_name)
     end
-    download_pkg(app_name)
+    Pkg.update()
+    Pkg.activate(get_apppath())
 end
 
 function test(path, app_name)
@@ -102,4 +113,10 @@ function test(path, app_name)
     @assert isfile(executable)
     cmd = `$executable $args`
     @assert success(run(cmd))
+end
+
+function version()
+    Pkg.activate(get_apppath())
+    Pkg.status()
+    Pkg.activate()
 end
