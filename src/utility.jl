@@ -13,13 +13,13 @@ end
 function download_pkg(pkg, subpkgs=nothing)
     if (isnothing(subpkgs) && pkg == "ClearswiApp") return download_pkg(pkg, ["CLEARSWI"]) end
 
-    Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
     if !isnothing(subpkgs)
-        Pkg.activate(pathof(pkg))
         for subpkg in subpkgs
             Pkg.add(PackageSpec(;url="https://github.com/korbinian90/$subpkg.jl"))
         end
     end
+    Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
+
     Pkg.instantiate()
 end
 
