@@ -55,3 +55,12 @@ end
 function copy_matlab(path)
     cp(joinpath(dirname(@__DIR__), "matlab"), joinpath(path, "matlab"))
 end
+
+function copy_mkl(path)
+    mkl_sha1_str = "28c8373199bf79bd94ce76e3f45eeaef6d9c1c47"
+    mkl_sha1 = Base.SHA1(mkl_sha1_str)
+    if Pkg.artifact_exists(mkl_sha1)
+        destination_artifacts_path = joinpath(path, "share", "julia", "artifacts", mkl_sha1_str)
+        cp(Pkg.artifact_path(mkl_sha1), destination_artifacts_path)
+    end
+end

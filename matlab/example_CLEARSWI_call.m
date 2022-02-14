@@ -11,10 +11,10 @@ parameters.TE = [1,2,3];
 %% Optional Parameters
 parameters.output_dir = fullfile(tempdir, 'clearswi_tmp'); % if not set pwd() is used
 parameters.voxel_size = load_nii_hdr(phase_fn).dime.pixdim(2:4); % if set, the written NIfTI files will have the matching voxelsize
-parameters.mag_combine = "SNR";
-parameters.unwrapping_algorithm = "laplacian";
-parameters.phase_scaling_strength = "tanh";
-parameters.phase_scaling_type = "4";
+parameters.mag_combine = 'SNR';
+parameters.unwrapping_algorithm = 'laplacian';
+parameters.phase_scaling_strength = '4';
+parameters.phase_scaling_type = 'tanh';
 parameters.additional_flags = '--verbose -N'; % settings are pasted directly to CLEARSWI cmd (see https://github.com/korbinian90/CLEARSWI for options)
 
 %% Suggested steps
