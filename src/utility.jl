@@ -11,7 +11,7 @@ function get_appname(name)
 end
 
 function download_pkg(pkg, subpkgs=nothing)
-    if pkg == "ClearswiApp" return download_pkg(pkg, ["CLEARSWI"]) end
+    if (isnothing(subpkgs) && pkg == "ClearswiApp") return download_pkg(pkg, ["CLEARSWI"]) end
 
     Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
     if !isnothing(subpkgs)
