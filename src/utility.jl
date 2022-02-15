@@ -8,7 +8,7 @@ function check_pkg(name)
         download_pkg(get_appname(name))
     catch
     end
-    Pkg.activate()
+    Pkg.activate(pwd())
 end
 
 function get_apppath()
@@ -31,7 +31,7 @@ function download_pkg(pkg, subpkgs=nothing)
     Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
     Pkg.instantiate()
 
-    Pkg.activate()
+    Pkg.activate(pwd())
 end
 
 function findartifactpath(pth, name)
@@ -119,5 +119,9 @@ end
 function version()
     Pkg.activate(get_apppath())
     Pkg.status()
-    Pkg.activate()
+    Pkg.activate(pwd())
+end
+
+function romeo_version()
+    Pkg.TOML.parsefile(joinpath(pathof("RomeoApp"), "Project.toml"))["version"]
 end

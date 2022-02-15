@@ -1,4 +1,4 @@
-function compile(path;
+function compile(path="compiled";
         apps = ["romeo", "clearswi"],
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
