@@ -1,8 +1,6 @@
 name: Compile
 on:
-  push:
-    tags:
-      - '*'
+  - push
 jobs:
   test:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
