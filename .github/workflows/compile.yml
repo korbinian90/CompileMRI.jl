@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
-        run: julia -e 'using CompileMRI; compile("compiled")'
+        run: julia --color=yes --project=@. -e 'using CompileMRI; compile("compiled")'
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
