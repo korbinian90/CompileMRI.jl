@@ -38,5 +38,5 @@ jobs:
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mritools_${{ runner.os }}_TODO.zip
+          name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
           path: compiled.zip
