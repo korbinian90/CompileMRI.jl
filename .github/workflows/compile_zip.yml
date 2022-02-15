@@ -1,4 +1,4 @@
-name: Compile
+name: Compile Zip
 on:
   - push
 jobs:
@@ -15,3 +15,8 @@ jobs:
       - run: ls
       - run: mkdir compile
       - run: Compress-Archive -Path 'compile' -DestinationPath 'compiled.zip'
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mritools_${{ runner.os }}_TODO.zip
+          path: compiled.zip
