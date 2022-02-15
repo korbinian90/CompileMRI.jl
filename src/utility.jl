@@ -12,7 +12,7 @@ function check_pkg(name)
 end
 
 function get_apppath()
-    return @show joinpath(dirname(@__DIR__), "App")
+    return joinpath(dirname(@__DIR__), "App")
 end
 
 function get_appname(name)
@@ -54,6 +54,7 @@ function clean_app(path, app_names)
     end
     
     mkl_path = findartifactpath(artifact_path, "mkl")
+    if isnothing(mkl_path) return end
     if isdir(joinpath(mkl_path, "bin"))
         for f in readdir(joinpath(mkl_path, "bin"); join=true)
             if !(occursin("mkl_core.1.dll", f) || occursin("mkl_rt.1.dll", f))

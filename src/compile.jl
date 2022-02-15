@@ -3,6 +3,7 @@ function compile(path;
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
         clean=true,
+        include_transitive_dependencies=false,
         kw...)
 
     for app in apps
@@ -11,7 +12,7 @@ function compile(path;
     
     apppath = joinpath(dirname(@__DIR__), "App")
     executables=[c=>c for c in apps]
-    create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, kw...)
+    create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, include_transitive_dependencies, kw...)
     copy_mkl(path)
 
     for app in apps
