@@ -28,6 +28,20 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
-        run: echo ${{ runner.os }}
+        env:
+          windows: ${{ runner.os == 'Windows'}}
+          executable: |
+            
+
+        run: |
+          if ${windows}; then
+            echo "executable=romeo.exe" >> $GITHUB_ENV
+          else
+            echo "executable=romeo" >> $GITHUB_ENV
+          fi
+
+      - run: echo ${{ env.executable }}
+
       
