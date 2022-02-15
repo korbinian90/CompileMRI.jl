@@ -1,0 +1,17 @@
+name: Compile
+on:
+  - push
+jobs:
+  main:
+    name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    if: "contains(github.event.head_commit.message, 'zip')"
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+    steps:
+      - run: ls
+      - run: mkdir compile
+      - run: Compress-Archive -Path 'compile' -DestinationPath 'compiled.zip'
