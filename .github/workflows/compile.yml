@@ -14,5 +14,5 @@ jobs:
           - windows-latest
     steps:
       - name: Compile
-        run: echo ${ runner.os }
+        run: echo ${{ runner.os }}
       
