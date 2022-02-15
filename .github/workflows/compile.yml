@@ -31,9 +31,21 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
-      - name: Upload as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ runner.os }}
-          path: compiled
+      - name: Compress
+        if: ${{ runner.os == windows-latest }}
+          - run: Compress-Archive -Path 'compile' -DestinationPath 'compiled.zip'
+          - name: Upload as artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: mritools_${{ runner.os }}.zip
+                path: compiled.zip
 
+        if: ${{ runner.os != windows-latest }}
+          - run: tar -vczf compiled.tar.gz compile
+          - name: Upload as artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: mritools_${{ runner.os }}.tar.gz
+                path: compiled.tar.gz
+
+      
