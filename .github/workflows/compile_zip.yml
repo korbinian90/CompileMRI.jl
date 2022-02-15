@@ -12,9 +12,12 @@ jobs:
         os:
           - windows-latest
     steps:
+      - run: mkdir compiled
+      - run: echo This is a sample text file > compiled/sample.txt
       - run: ls
-      - run: mkdir compile
-      - run: Compress-Archive -Path 'compile' -DestinationPath 'compiled.zip'
+      - run: ls compiled
+      - run: Compress-Archive -Path 'compiled' -DestinationPath 'compiled.zip'
+      - run: ls
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
