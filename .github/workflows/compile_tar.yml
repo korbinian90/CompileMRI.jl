@@ -35,7 +35,7 @@ jobs:
         run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
         id: version
       - name: Compress
-        run: tar -vczf compiled.tar.gz compile
+        run: tar -vczf compiled.tar.gz compiled
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
