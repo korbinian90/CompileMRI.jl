@@ -29,8 +29,8 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
-      - name: Compile
-        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - if: ${{ runner.os == 'windows-latest' }}
-        run: Compress-Archive -Path 'compile' -DestinationPath 'compiled.zip'
+        run: echo "windows"
+      - if: ${{ runner.os != 'windows-latest' }}
+        run: echo "not windows"
       
