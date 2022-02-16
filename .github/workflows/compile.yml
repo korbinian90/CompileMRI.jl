@@ -30,8 +30,8 @@ jobs:
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          echo "ZIP_ENDING='zip'" >> $GITHUB_ENV
-          echo "ZIP_TYPE='zip'" >> $GITHUB_ENV
+          echo "ZIP_ENDING=zip" >> $env::GITHUB_ENV
+          echo "ZIP_TYPE=zip" >> $env::GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
       - run: echo $ZIP_ENDING $ZIP_TYPE
       - name: Upload release
