@@ -2,23 +2,9 @@ name: Compile
 on:
   - push
 jobs:
-  release:
-    runs-on: ubuntu_18.04
-    steps:
-    - name: Release
-      uses: actions/create-release@v1
-      id: create_release
-      with:
-        draft: true
-        prerelease: false
-        release_name: ${{ steps.version.outputs.version }}
-        tag_name: ${{ github.ref }}
-      env:
-        GITHUB_TOKEN:  ${{ github.token }}
   zip:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
-    needs: release
     if: "contains(github.event.head_commit.message, 'zip')"
     strategy:
       fail-fast: false
@@ -26,11 +12,27 @@ jobs:
         os:
           - windows-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1.7'
+          arch: 'x64'
+      - uses: actions/cache@v1
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
+      - name: Compile
+        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
-        run: echo "::set-output name=version::test"
+        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
         id: version
-      - run: mkdir compiled
-      - run: echo This is a sample text file > compiled/sample.txt
       - name: Compress
         run: Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload as artifact
@@ -41,7 +43,6 @@ jobs:
   tar:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
-    needs: release
     if: "contains(github.event.head_commit.message, 'tar')"
     strategy:
       fail-fast: false
@@ -57,15 +58,23 @@ jobs:
       - run: echo This is a sample text file > compiled/sample.txt
       - name: Compress
         run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz -C compiled .
-
+      - name: Release
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: true
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN:  ${{ github.token }}
       - name: Upload as artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ needs.release.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
-
-    
+          asset_content_type: application/gzip    
