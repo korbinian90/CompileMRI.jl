@@ -40,7 +40,7 @@ jobs:
         with:
           name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
           path: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
-  Tar:
+  tar:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     if: "contains(github.event.head_commit.message, 'tar')"
@@ -51,32 +51,21 @@ jobs:
           - ubuntu-18.04
           - macOS-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1.7'
-          arch: 'x64'
-      - uses: actions/cache@v1
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@latest
-      - name: Compile
-        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
-        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
+        run: echo "::set-output name=version::v1.4"
         id: version
+      - run: mkdir compiled
+      - run: echo This is a sample text file > compiled/sample.txt
       - name: Compress
         run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz compiled/*
       - name: Upload as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
-          path: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
+          upload_url: https://github.com/korbinian90/ROMEO/releases/tag/_${{ steps.version.outputs.version }}
+          asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
+          asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
 
+    
