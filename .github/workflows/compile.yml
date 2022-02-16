@@ -34,12 +34,12 @@ jobs:
         run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
         id: version
       - name: Compress
-        run: Compress-Archive -Path 'compiled' -DestinationPath 'compiled.zip'
+        run: Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
           name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
-          path: compiled.zip
+          path: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
   Tar:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
@@ -73,10 +73,10 @@ jobs:
         run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
         id: version
       - name: Compress
-        run: tar -vczf compiled.tar.gz compiled
+        run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz compiled/*
       - name: Upload as artifact
         uses: actions/upload-artifact@v2
         with:
           name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
-          path: compiled.tar.gz
+          path: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
 
