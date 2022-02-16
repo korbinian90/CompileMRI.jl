@@ -3,6 +3,7 @@ on:
   - push
 jobs:
   release:
+    name: release
     runs-on: ubuntu_latest
     steps:
     - name: Release
