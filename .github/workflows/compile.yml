@@ -22,14 +22,14 @@ jobs:
 
       - name: Compress Unix
         if: ${{ runner.os != 'Windows' }}
-        run: |
+        run: |-
           echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
           echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
           mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
           run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
-        run: |
+        run: |-
           echo "ZIP_ENDING=zip" >> $GITHUB_ENV
           echo "ZIP_TYPE=zip" >> $GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
