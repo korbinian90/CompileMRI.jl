@@ -1,4 +1,9 @@
 # CompileMRI
+
+[![Build Status](https://github.com/korbinian90/CompileMRI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CompileMRI.jl/actions)
+
+
+## [Download executables for ROMEO and CLEAR-SWI (Linux, Windows and MacOS)](https://github.com/korbinian90/CompileMRI.jl/releases)
 ## Compile ROMEO and CLEAR-SWI
 
 1. Install Julia
