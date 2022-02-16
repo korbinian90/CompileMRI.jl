@@ -10,12 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - ubuntu-18.04
           - macOS-10.15
+          - windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.6'
+          version: '1.7'
           arch: 'x64'
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
