@@ -14,12 +14,17 @@ jobs:
           - macOS-latest
           - windows-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: '1.7'
+          arch: 'x64'
+      - uses: julia-actions/julia-buildpkg@latest
+      - name: Compile
+        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
-        run: echo "::set-output name=version::test"
+        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
         id: version
-      - run: mkdir compiled
-      - run: echo This is a sample text file > compiled/sample.txt
-
       - name: Compress Unix
         if: ${{ runner.os != 'Windows' }}
         run: |
@@ -33,7 +38,6 @@ jobs:
           echo "ZIP_ENDING=zip" >> $env:GITHUB_ENV
           echo "ZIP_TYPE=zip" >> $env:GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
-      - run: echo $ZIP_ENDING $ZIP_TYPE
       - name: Upload release
         uses: actions/upload-release-asset@v1
         env:
