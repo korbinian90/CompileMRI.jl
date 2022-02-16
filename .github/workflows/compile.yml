@@ -57,7 +57,7 @@ jobs:
       - run: mkdir compiled
       - run: echo This is a sample text file > compiled/sample.txt
       - name: Compress
-        run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz compiled/*
+        run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz -C compiled .
       - name: Release
         uses: actions/create-release@v1
         id: create_release
@@ -73,7 +73,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          uplead_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_content_type: application/gzip
