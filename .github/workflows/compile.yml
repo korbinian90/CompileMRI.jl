@@ -7,7 +7,6 @@ jobs:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os:
           - ubuntu-18.04
@@ -22,18 +21,18 @@ jobs:
 
       - name: Compress Unix
         if: ${{ runner.os != 'Windows' }}
-        run: |-
-          echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
-          echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
+        run: |
+          echo "ZIP_ENDING='tar.gz'" >> $GITHUB_ENV
+          echo "ZIP_TYPE='gzip'" >> $GITHUB_ENV
           mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
-          run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
+          tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
-        run: |-
-          echo "ZIP_ENDING=zip" >> $GITHUB_ENV
-          echo "ZIP_TYPE=zip" >> $GITHUB_ENV
+        run: |
+          echo "ZIP_ENDING='zip'" >> $GITHUB_ENV
+          echo "ZIP_TYPE='zip'" >> $GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
-      - name: Upload as artifact
+      - name: Upload release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
