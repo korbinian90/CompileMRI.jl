@@ -1,7 +1,7 @@
 name: Compile
 on:
   release:
-    types: [prerelease]
+    types: [published]
 jobs:
   compile:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
