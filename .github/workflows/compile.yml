@@ -3,7 +3,7 @@ on:
   - push
 jobs:
   release:
-    runs-on: ubuntu_latest
+    runs-on: ubuntu_18.04
     steps:
     - name: Release
       uses: actions/create-release@v1
