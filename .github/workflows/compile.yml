@@ -52,18 +52,28 @@ jobs:
           - macOS-latest
     steps:
       - name: Get Version
-        run: echo "::set-output name=version::v1.4"
+        run: echo "::set-output name=version::test"
         id: version
       - run: mkdir compiled
       - run: echo This is a sample text file > compiled/sample.txt
       - name: Compress
         run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz compiled/*
+      - name: Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: true
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+        env:
+          GITHUB_TOKEN:  ${{ github.token }}
       - name: Upload as artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: https://github.com/korbinian90/ROMEO/releases/tag/_${{ steps.version.outputs.version }}
+          uplead_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_content_type: application/gzip
