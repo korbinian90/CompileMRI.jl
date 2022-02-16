@@ -1,10 +1,7 @@
 name: Compile
 on:
-  workflow_run:
-    workflows:
-      - release
-    type:
-      - completed
+  release:
+    types: [unpublished]
 jobs:
   zip:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
@@ -78,7 +75,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: https://uploads.github.com/repos/korbinian90/CompileMRI.jl/releases/test2/assets{?name,label}
+          upload_url: ${{ github.event.release }}
           asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
           asset_content_type: application/gzip    
