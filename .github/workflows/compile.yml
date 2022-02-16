@@ -3,16 +3,18 @@ on:
   - push
 jobs:
   release:
-  - name: Release
-    uses: actions/create-release@v1
-    id: create_release
-    with:
-      draft: true
-      prerelease: false
-      release_name: ${{ steps.version.outputs.version }}
-      tag_name: ${{ github.ref }}
-    env:
-      GITHUB_TOKEN:  ${{ github.token }}
+    runs-on: ubuntu_latest
+    steps:
+    - name: Release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: true
+        prerelease: false
+        release_name: ${{ steps.version.outputs.version }}
+        tag_name: ${{ github.ref }}
+      env:
+        GITHUB_TOKEN:  ${{ github.token }}
   zip:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
