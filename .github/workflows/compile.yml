@@ -3,40 +3,7 @@ on:
   release:
     types: [prereleased]
 jobs:
-  zip:
-    name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1.7'
-          arch: 'x64'
-      - uses: julia-actions/julia-buildpkg@latest
-      - name: Compile
-        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
-      - name: Get Version
-        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
-        id: version
-      - name: Rename
-        run: mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
-      - name: Compress
-        run: Compress-Archive -Path 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
-      - name: Upload as artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
-          asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip
-          asset_content_type: application/zip
-  tar:
+  compile:
     name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -45,28 +12,33 @@ jobs:
         os:
           - ubuntu-18.04
           - macOS-latest
+          - windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1.7'
-          arch: 'x64'
-      - uses: julia-actions/julia-buildpkg@latest
-      - name: Compile
-        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
-        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
+        run: echo "::set-output name=version::test"
         id: version
-      - name: Rename
-        run: mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
-      - name: Compress
-        run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
+      - run: mkdir compiled
+      - run: echo This is a sample text file > compiled/sample.txt
+
+      - name: Compress Unix
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
+          echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
+          mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
+          run: tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
+      - name: Compress Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          echo "ZIP_ENDING=zip" >> $GITHUB_ENV
+          echo "ZIP_TYPE=zip" >> $GITHUB_ENV
+          Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload as artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
-          asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
+          asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          asset_content_type: application/${{ env.ZIP_TYPE }}
