@@ -28,8 +28,7 @@ function download_pkg(pkg, subpkgs=nothing)
             Pkg.add(PackageSpec(;url="https://github.com/korbinian90/$subpkg.jl"))
         end
     end
-    Pkg.develop(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
-    Pkg.instantiate()
+    Pkg.add(PackageSpec(;url="https://github.com/korbinian90/$pkg.jl"))
 
     Pkg.activate(pwd())
 end
@@ -55,7 +54,7 @@ function update()
         Pkg.update(app_name)
     end
     Pkg.update()
-    Pkg.activate(get_apppath())
+    Pkg.activate(pwd())
 end
 
 function test(path, app_name)
