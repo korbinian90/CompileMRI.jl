@@ -1,34 +1,9 @@
-function check_pkg()
-    Pkg.activate(get_apppath())
-    try
-        Pkg.instantiate()
-    catch
-    end
-    try
-        download_pkg()
-    catch
-    end
-    Pkg.activate(pwd())
-end
-
 function get_apppath()
     return joinpath(dirname(@__DIR__), "App")
 end
 
 function get_appname(name)
 return Dict("romeo" => "RomeoApp", "clearswi" => "ClearswiApp")[name]
-end
-
-function download_pkg()
-    Pkg.activate(get_apppath())
-    # registered
-    Pkg.add("ArgParse")
-    Pkg.add("MriResearchTools")
-    # unregistered
-    Pkg.add(PackageSpec(;url="https://github.com/korbinian90/CLEARSWI.jl"))
-    Pkg.add(PackageSpec(;url="https://github.com/korbinian90/ClearswiApp.jl"))
-    Pkg.add(PackageSpec(;url="https://github.com/korbinian90/RomeoApp.jl"))
-    Pkg.activate(pwd())
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)

@@ -5,8 +5,6 @@ function compile(path="compiled";
         include_transitive_dependencies=false,
         kw...)
 
-    check_pkg()
-    
     apppath = joinpath(dirname(@__DIR__), "App")
     executables=[c=>c for c in apps]
     create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, include_transitive_dependencies, kw...)
