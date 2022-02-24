@@ -23,7 +23,7 @@ jobs:
       - name: Compile
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
-        run: echo "::set-output name=version::$(./compiled/bin/romeo --version)"
+        run: echo "::set-output name=version::$(julia --project=@. -e 'using CompileMRI; println(CompileMRI.mritools_version())')"
         id: version
       - name: Compress Unix
         if: ${{ runner.os != 'Windows' }}

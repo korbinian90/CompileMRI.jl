@@ -46,3 +46,7 @@ end
 function romeo_version()
     Pkg.TOML.parsefile(joinpath(pathof("RomeoApp"), "Project.toml"))["version"]
 end
+
+function mritools_version()
+    Pkg.TOML.parsefile(joinpath(get_apppath(), "Project.toml"))["version"]
+end
