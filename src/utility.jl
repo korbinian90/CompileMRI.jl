@@ -3,7 +3,10 @@ function check_pkg()
     try
         Pkg.instantiate()
     catch
+    end
+    try
         download_pkg()
+    catch
     end
     Pkg.activate(pwd())
 end
