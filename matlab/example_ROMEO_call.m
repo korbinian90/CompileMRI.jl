@@ -24,3 +24,6 @@ mkdir(parameters.output_dir);
 [unwrapped, B0] = ROMEO(phase, parameters);
 
 %rmdir(parameters.output_dir, 's') % remove the temporary ROMEO output folder
+
+unwrapped_nii = make_nii(unwrapped);
+unwrapped_nii.hdr = load_nii_hdr(phase_fn);

@@ -1,7 +1,7 @@
 name = "CompileMRI"
 uuid = "4e98bb4c-fe77-4837-9a5a-17415e248a88"
 authors = ["Korbinian Eckstein"]
-version = "0.3.3"
+version = "0.4.0"
 
 [deps]
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"

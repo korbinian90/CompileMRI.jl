@@ -2,37 +2,18 @@ using CompileMRI
 using Test
 using Pkg
 #=
-try
-    using RomeoApp
-catch
-    if !isdir(CompileMRI.pathof("RomeoApp"))
-        CompileMRI.download_pkg("RomeoApp")
-    else
-        Pkg.develop("RomeoApp")
-    end
-    using RomeoApp
-end
-
-@testset "ROMEO" begin
-    include("romeo_test.jl")
-end
-
-try
-    using ClearswiApp
-catch
-    if !isdir(CompileMRI.pathof("ClearswiApp"))
-        CompileMRI.download_pkg("ClearswiApp")
-    else
-        Pkg.develop("ClearswiApp")
-    end
-    using ClearswiApp
+@testset "MCPC3DS" begin
+    include("mcpc3ds_test.jl")
 end
 
 @testset "CLEARSWI" begin
     include("clearswi_test.jl")
 end
-=#
 
+@testset "ROMEO" begin
+    include("romeo_test.jl")
+end
+=#
 @testset "Compile Test" begin
     include("compile_test.jl")
 end

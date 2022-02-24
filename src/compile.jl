@@ -1,13 +1,11 @@
 function compile(path="compiled";
-        apps = ["romeo", "clearswi"],
+        apps = ["romeo", "clearswi", "mcpc3ds"],
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
         include_transitive_dependencies=false,
         kw...)
 
-    for app in apps
-        check_pkg(app)
-    end
+    check_pkg()
     
     apppath = joinpath(dirname(@__DIR__), "App")
     executables=[c=>c for c in apps]
@@ -19,6 +17,6 @@ function compile(path="compiled";
 
     copy_matlab(path)
 
-    printstyled("Success! CLEARSWI and ROMEO compiled and tested!\n"; color=:green)
+    printstyled("Success! $(uppercase.(apps)) compiled and tested!\n"; color=:green)
     @warn("Relocatability has to be tested manually!")
 end
