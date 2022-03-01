@@ -33,49 +33,45 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     fn_unwrapped = fullfile(output_dir, 'Unwrapped.nii');
     fn_total_field = fullfile(output_dir, 'B0.nii');
     
+    % deliberately a string, so everything gets promoted to string
+    romeo_cmd = string(romeo_binary);
+
     % Always required parameters
-    cmd_phase = strjoin({'-p', fn_phase});
-    cmd_output = strjoin({'-o', fn_unwrapped});
+    romeo_cmd = [romeo_cmd, '-p', fn_phase];
+    romeo_cmd = [romeo_cmd, '-o', fn_unwrapped];
     
     % Optional parameters
-    cmd_calculate_B0 = '';
     if isfield(parameters, 'calculate_B0') && parameters.calculate_B0
-        cmd_calculate_B0 = '-B';
+        romeo_cmd = [romeo_cmd, '-B'];
     end
-    cmd_mag = '';
     if isfield(parameters, 'mag') && ~isempty(parameters.mag)
-        cmd_mag = strjoin({'-m', fn_mag});
+        romeo_cmd = [romeo_cmd, '-m', fn_mag];
     end
-    cmd_echo_times = '';
     if isfield(parameters, 'TE')
-        cmd_echo_times = strjoin({'-t', mat2str(parameters.TE)});
+        romeo_cmd = [romeo_cmd, '-t', mat2str(parameters.TE)];
     end
-    cmd_mask = '';
     if isfield(parameters, 'mask')
         if isnumeric(parameters.mask)
-            cmd_mask = strjoin({'-k', fn_mask});
+            romeo_cmd = [romeo_cmd, '-k', fn_mask];
         else
-            cmd_mask = strjoin({'-k', parameters.mask});
+            romeo_cmd = [romeo_cmd, '-k', parameters.mask];
         end
     end
-    cmd_phase_offset_correction = '';
     if isfield(parameters, 'phase_offset_correction')
-        cmd_phase_offset_correction = strjoin({'--phase-offset-correction', parameters.phase_offset_correction});
+        romeo_cmd = [romeo_cmd, '--phase-offset-correction', parameters.phase_offset_correction];
     end
-    additional_flags = '';
     if isfield(parameters, 'additional_flags')
-        additional_flags = parameters.additional_flags;
+        romeo_cmd = [romeo_cmd, parameters.additional_flags];
     end
     
     % Create romeo CMD command
-    romeo_cmd = strjoin({romeo_binary, cmd_phase, cmd_mag, cmd_output, cmd_echo_times, cmd_mask, cmd_calculate_B0, cmd_phase_offset_correction, additional_flags});
-    disp(strjoin({'ROMEO command:', romeo_cmd}))
+    disp(join(['ROMEO command:', romeo_cmd]))
     
     % Run romeo
-    success = system(romeo_cmd); % system() call should work on every machine
+    success = system(join(romeo_cmd)); % system() call should work on every machine
     
     if success ~= 0
-        error(strjoin({'ROMEO unwrapping failed! Check input files for corruption in', output_dir}));
+        error(['ROMEO unwrapping failed! Check input files for corruption in ', output_dir]);
     end
     
     % Load the calculated output
