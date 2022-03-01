@@ -30,42 +30,42 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     fn_mip = fullfile(output_dir, 'mip.nii');
     
     % Always required parameters
-    cmd_phase = [' -p ' fn_phase];
-    cmd_mag = [' -m ' fn_mag];
-    cmd_output = [' -o ' fn_swi];
-    cmd_echo_times = [' -t ' mat2str(parameters.TE)];
+    cmd_phase = strjoin({'-p', fn_phase});
+    cmd_mag = strjoin({'-m', fn_mag});
+    cmd_output = strjoin({'-o', fn_swi});
+    cmd_echo_times = strjoin({'-t', mat2str(parameters.TE)});
     
     % Optional parameters
     cmd_mag_combine = '';
     if isfield(parameters, 'mag_combine')
-        cmd_mag_combine = [' --mag-combine ' parameters.mag_combine];
+        cmd_mag_combine = strjoin({'--mag-combine', parameters.mag_combine});
     end
     cmd_unwrapping_algorithm = '';
     if isfield(parameters, 'unwrapping_algorithm')
-        cmd_unwrapping_algorithm = [' --unwrapping-algorithm ', parameters.unwrapping_algorithm];
+        cmd_unwrapping_algorithm = strjoin({'--unwrapping-algorithm', parameters.unwrapping_algorithm});
     end
     cmd_phase_scaling_strength = '';
     if isfield(parameters, 'phase_scaling_strength')
-        cmd_phase_scaling_strength = [' --phase-scaling-strength ', parameters.phase_scaling_strength];
+        cmd_phase_scaling_strength = strjoin({'--phase-scaling-strength', parameters.phase_scaling_strength});
     end
     cmd_phase_scaling_type = '';
     if isfield(parameters, 'phase_scaling_type')
-        cmd_phase_scaling_type = [' --phase-scaling-type ', parameters.phase_scaling_type];
+        cmd_phase_scaling_type = strjoin({'--phase-scaling-type', parameters.phase_scaling_type});
     end
     additional_flags = '';
     if isfield(parameters, 'additional_flags')
-        additional_flags = [' ' parameters.additional_flags];
+        additional_flags = parameters.additional_flags;
     end
     
     % Create clearswi CMD command
-    clearswi_cmd = [clearswi_binary cmd_mag cmd_phase cmd_output cmd_echo_times cmd_mag_combine cmd_unwrapping_algorithm cmd_phase_scaling_type cmd_phase_scaling_strength additional_flags];
-    disp(['clearswi command: ' clearswi_cmd])
+    clearswi_cmd = strjoin({clearswi_binary, cmd_mag, cmd_phase, cmd_output, cmd_echo_times, cmd_mag_combine, cmd_unwrapping_algorithm, cmd_phase_scaling_type, cmd_phase_scaling_strength, additional_flags});
+    disp(strjoin({'clearswi command:', clearswi_cmd}))
     
     % Run clearswi
     success = system(clearswi_cmd); % system() call should work on every machine
     
     if success ~= 0
-        error(['clearswi unwrapping failed! Check input files for corruption in ' output_dir]);
+        error(strjoin({'clearswi unwrapping failed! Check input files for corruption in', output_dir}));
     end
     
     % Load the calculated output
