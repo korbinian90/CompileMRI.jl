@@ -15,7 +15,7 @@ parameters.mag_combine = 'SNR';
 parameters.unwrapping_algorithm = 'laplacian';
 parameters.phase_scaling_strength = '4';
 parameters.phase_scaling_type = 'tanh';
-parameters.additional_flags = '--verbose -N'; % settings are pasted directly to CLEARSWI cmd (see https://github.com/korbinian90/CLEARSWI for options)
+parameters.additional_flags = '--verbose'; % additional_flags are pasted directly to CLEARSWI cmd (see https://github.com/korbinian90/CLEARSWI for options)
 
 %% Suggested steps
 mkdir(parameters.output_dir);

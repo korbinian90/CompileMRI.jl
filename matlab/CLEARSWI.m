@@ -31,6 +31,7 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     
     % Always required parameters
     cmd_phase = [' -p ' fn_phase];
+    cmd_mag = [' -m ' fn_mag];
     cmd_output = [' -o ' fn_swi];
     cmd_echo_times = [' -t ' mat2str(parameters.TE)];
     
@@ -41,15 +42,15 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     end
     cmd_unwrapping_algorithm = '';
     if isfield(parameters, 'unwrapping_algorithm')
-        cmd_unwrapping_algorithm = [' --unwrapping-algorithm', parameters.unwrapping_algorithm];
+        cmd_unwrapping_algorithm = [' --unwrapping-algorithm ', parameters.unwrapping_algorithm];
     end
     cmd_phase_scaling_strength = '';
     if isfield(parameters, 'phase_scaling_strength')
-        cmd_phase_scaling_strength = [' --phase-scaling-strength', parameters.phase_scaling_strength];
+        cmd_phase_scaling_strength = [' --phase-scaling-strength ', parameters.phase_scaling_strength];
     end
     cmd_phase_scaling_type = '';
     if isfield(parameters, 'phase_scaling_type')
-        cmd_phase_scaling_type = [' --phase-scaling-type', parameters.phase_scaling_type];
+        cmd_phase_scaling_type = [' --phase-scaling-type ', parameters.phase_scaling_type];
     end
     additional_flags = '';
     if isfield(parameters, 'additional_flags')
