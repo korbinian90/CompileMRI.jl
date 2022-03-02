@@ -14,6 +14,7 @@ function compile(path="compiled";
     end
 
     copy_matlab(path)
+    copy_documentation(path)
 
     printstyled("Success! $(uppercase.(apps)) compiled and tested!\n"; color=:green)
     @warn("Relocatability has to be tested manually!")

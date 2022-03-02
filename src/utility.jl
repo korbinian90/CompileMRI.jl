@@ -12,6 +12,11 @@ function copy_matlab(path)
     cp(joinpath(dirname(@__DIR__), "matlab"), joinpath(path, "matlab"))
 end
 
+function copy_documentation(path)
+    cp(joinpath(dirname(@__DIR__), "documentation", "README.md"), joinpath(path, "README.md"))
+    cp(joinpath(dirname(@__DIR__), "LICENSE"), joinpath(path, "LICENSE"))
+end
+
 function update()
     Pkg.activate(get_apppath())
     for name in ["clearswi", "romeo"]
