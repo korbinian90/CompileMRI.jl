@@ -1,14 +1,14 @@
-# CompileMRI
+# CompileMRI - mritools
 
 [![Build Status](https://github.com/korbinian90/CompileMRI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CompileMRI.jl/actions)
 
 
-## [Download executables for ROMEO and CLEAR-SWI (Linux, Windows and MacOS)](https://github.com/korbinian90/CompileMRI.jl/releases)
+## [Download executables for ROMEO, CLEAR-SWI and MCPC-3D-S (Linux and Windows)](https://github.com/korbinian90/CompileMRI.jl/releases)
 ## Compile ROMEO and CLEAR-SWI
 
 1. Install Julia
 
-   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.6 or newer is recommended, some package managers install outdated versions)
+   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.7 or newer is recommended, some package managers install outdated versions)
 
 2. Install CompileMRI
 
@@ -18,7 +18,7 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.6) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
+   (@v1.7) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
    # All dependencies are installed automatically
    ```
 
@@ -32,23 +32,19 @@
    ```julia
    julia> compile("/tmp/compiled"; force=true)
    ```
-   If only one app should be compiled, use the syntax
-   ```julia
-   julia> compile("/tmp/compiled"; apps=["romeo"])
-   ```
    
 ### Update to newest version
 To update to the newest version of the packages, type in the Julia REPL (Package manager):  
-**CompileMRI**
+**For updating CompileMRI**
 ```
 julia> ] up CompileMRI
 ```
-**ROMEO and CLEAR-SWI**
+**For updating ROMEO and CLEAR-SWI**
 ```julia
    julia> using CompileMRI
-   julia> update("romeo")
-   julia> update("clearswi")
+   julia> update()
    julia> ] up # required to update depending packages
+   julia> ] build CompileMRI
 ```
 
 ## Known problems
