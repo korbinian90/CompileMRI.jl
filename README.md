@@ -4,6 +4,8 @@
 
 
 ## [Download executables for ROMEO, CLEAR-SWI and MCPC-3D-S (Linux and Windows)](https://github.com/korbinian90/CompileMRI.jl/releases)
+*Note for MacOS:* We automatically compile for MacOS too, however, it seems to only run on the same version it was compiled on (`macos-11`). The MacOS executable are not signed and require the user to allow the execution of multiple files.
+
 ## Compile ROMEO and CLEAR-SWI
 
 1. Install Julia
