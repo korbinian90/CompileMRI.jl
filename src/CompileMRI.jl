@@ -6,6 +6,7 @@ module CompileMRI
     include("compile.jl")
 
     export  compile,
+            test,
             version,
             update
 

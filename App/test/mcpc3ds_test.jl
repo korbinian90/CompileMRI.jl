@@ -62,8 +62,8 @@ m = "Phase offset determination requires all echo times!"
 @test_throws ErrorException(m) mcpc3ds_main(["-p", phasefile_me, "-m", magfile_me, "-o", tmpdir, "-v", "-t", "5"])
 @test_throws ErrorException(m) mcpc3ds_main(["-p", phasefile_me, "-m", magfile_me, "-o", tmpdir, "-v", "-t", "[5]"])
 
-@test_logs mcpc3ds_main(["-p", phasefile_me, "-o", tmpdir, "-m", magfile_me]) # test that no warning appears
-@test_logs mcpc3ds_main(["-p", phasefile_me_5D, "-o", tmpdir, "-m", magfile_5D]) # test that no warning appears
+@test_logs mcpc3ds_main(["-p", phasefile_me, "-o", tmpdir, "-m", magfile_me, "-t", "[2,4,6]"]) # test that no warning appears
+@test_logs mcpc3ds_main(["-p", phasefile_me_5D, "-o", tmpdir, "-m", magfile_5D, "-t", "[2,4,6]"]) # test that no warning appears
 
 ## print version to verify
 println()

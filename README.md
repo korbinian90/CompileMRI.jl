@@ -20,7 +20,11 @@
    ```julia
    julia> ] # Be sure to type the closing bracket via the keyboard
    # Enters the Julia package manager
-   (@v1.7) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
+
+   # optional: activate a local julia project in the current folder
+   (@v1.7) pkg> activate . 
+
+   (compile) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
    # All dependencies are installed automatically
    ```
 

@@ -33,7 +33,8 @@ function getargs(args::AbstractVector, version)
                 artefacts (requires >= 3 echoes)."""
             action = :store_true
         "--write-phase-offsets"
-            help = "Saves the estimated phase offsets to the output folder"
+            help = """Saves the estimated phase offsets to the output folder.
+                This reduces the RAM requirement if memory mapping is activated."""
             action = :store_true
         "--no-mmap", "-N"
             help = """Deactivate memory mapping. Memory mapping might cause
@@ -65,7 +66,7 @@ function julia_main()::Cint
 end
 
 function mcpc3ds_main(args)
-    version = "0.1.0"
+    version = "0.1.1"
 
     settings = getargs(args, version)
     
@@ -95,14 +96,20 @@ function mcpc3ds_main(args)
     polarity = if settings["bipolar"] "bipolar" else "monopolar" end
     settings["verbose"] && println("perform phase offset correction with MCPC3D-S ($polarity)")
     
-    po = zeros(eltype(phase), (size(phase)[1:3]...,size(phase,5)))
+    po_size = (size(phase)[1:3]...,size(phase,5))
+    po_type = promote_type(eltype(phase), Float32) # use at least Float32 as type (no Int)
+    po = if settings["no-mmap"] || !settings["write-phase-offsets"]
+        zeros(eltype(phase), po_size)
+    else
+        write_emptynii(po_size, joinpath(writedir, "phase_offset.nii"); datatype=po_type, header=hdr)
+    end
     mag = if !isnothing(settings["magnitude"]) readmag(settings["magnitude"], mmap=!settings["no-mmap"]) else ones(size(phase)) end # TODO trues instead ones?
     bipolar_correction = settings["bipolar"]
     phase, mcomb = MriResearchTools.mcpc3ds(phase, mag; TEs, po, bipolar_correction, σ)
     settings["verbose"] && println("Saving corrected_phase and phase_offset")
     savenii(phase, "combined_phase", writedir, hdr)
     savenii(mcomb, "combined_mag", writedir, hdr)
-    settings["write-phase-offsets"] && savenii(po, "phase_offset", writedir, hdr)
+    settings["write-phase-offsets"] && settings["no-mmap"] && savenii(po, "phase_offset", writedir, hdr)
     return 0
 end
 

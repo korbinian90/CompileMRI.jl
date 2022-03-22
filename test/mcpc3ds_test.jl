@@ -15,3 +15,9 @@ end
 
 args = ["-p", phasefile, "-m", magfile, "-t", "1:3"]
 test_mcpc3ds(args)
+
+args = ["-p", phasefile, "-m", magfile, "-t", "1:3", "-N"]
+test_mcpc3ds(args)
+
+args = ["-p", phasefile, "-m", magfile, "-t", "1:3", "--write-phase-offsets"]
+test_mcpc3ds(args)

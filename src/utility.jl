@@ -55,3 +55,9 @@ end
 function mritools_version()
     Pkg.TOML.parsefile(joinpath(get_apppath(), "Project.toml"))["version"]
 end
+
+function test()
+    Pkg.activate(get_apppath())
+    Pkg.test()
+    Pkg.activate(pwd())
+end
