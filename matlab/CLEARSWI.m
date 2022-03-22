@@ -67,6 +67,8 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     end
     
     % Load the calculated output
-    swi = load_untouch_nii(fn_swi).img;
-    mip = load_untouch_nii(fn_mip).img;
+    swi = load_untouch_nii(fn_swi);
+    swi = swi.img;
+    mip = load_untouch_nii(fn_mip);
+    mip = mip.img;
 end

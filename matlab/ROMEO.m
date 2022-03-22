@@ -78,9 +78,11 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     B0 = [];
     unwrapped = [];
     if isfield(parameters, 'calculate_B0') && parameters.calculate_B0
-        B0 = load_untouch_nii(fn_total_field).img;
+        B0 = load_untouch_nii(fn_total_field);
+        B0 = B0.img;
     end
     if ~isfield(parameters, 'no_unwrapped_output') || ~parameters.no_unwrapped_output
-        unwrapped = load_untouch_nii(fn_unwrapped).img;
+        unwrapped = load_untouch_nii(fn_unwrapped)
+        unwrapped = unwrapped.img;
     end
 end
