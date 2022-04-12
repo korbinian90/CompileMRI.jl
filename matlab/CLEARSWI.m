@@ -55,6 +55,11 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     if isfield(parameters, 'additional_flags')
         clearswi_cmd = [clearswi_cmd, parameters.additional_flags];
     end
+        
+    % Add quotes (to support paths with spaces)
+    for i = 1:length(clearswi_cmd)
+        clearswi_cmd(i) = '"' + clearswi_cmd(i) + '"';
+    end
     
     % Create clearswi CMD command
     disp(join(['clearswi command:', clearswi_cmd]))

@@ -64,6 +64,11 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
         romeo_cmd = [romeo_cmd, parameters.additional_flags];
     end
     
+    % Add quotes (to support paths with spaces)
+    for i = 1:length(romeo_cmd)
+        romeo_cmd(i) = '"' + romeo_cmd(i) + '"';
+    end
+    
     % Create romeo CMD command
     disp(join(['ROMEO command:', romeo_cmd]))
     
