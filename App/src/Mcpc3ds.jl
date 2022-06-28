@@ -77,6 +77,10 @@ function mcpc3ds_main(args)
         writedir = dirname(writedir)
     end
 
+    if endswith(settings["phase"], ".gz") || endswith(settings["magnitude"], ".gz")
+        settings["no-mmap"] = true
+    end
+
     σ = [10,10,5]
     if !isempty(settings["smoothing-sigma"])
         σ = parse_array(settings["smoothing-sigma"])
