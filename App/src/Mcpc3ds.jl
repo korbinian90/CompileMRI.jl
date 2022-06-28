@@ -66,7 +66,7 @@ function julia_main()::Cint
 end
 
 function mcpc3ds_main(args)
-    version = "0.1.1"
+    version = "1.0.0"
 
     settings = getargs(args, version)
     
