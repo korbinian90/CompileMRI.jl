@@ -4,7 +4,7 @@ on:
     types: [published]
 jobs:
   compile:
-    name: Julia 1.7 - ${{ matrix.os }} - ${{ github.event_name }}
+    name: Julia 1.6 - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
