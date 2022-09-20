@@ -4,8 +4,10 @@ authors = ["Korbinian Eckstein"]
 version = "1.0.0"
 
 [deps]
+HostCPUFeatures = "3e5b6fbb-0976-4d2c-9146-d79de83f2fb0"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Static = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
 
 [compat]
 PackageCompiler = "2"
