@@ -4,21 +4,28 @@ on:
     types: [published]
 jobs:
   compile:
-    name: Julia 1.6 - ${{ matrix.os }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-18.04
+          - ubuntu-latest
           - macOS-latest
           - windows-latest
+        version:
+          - '1.8'
+        arch:
+          - 'x64'
+        include:
+          - os: windows-latest
+            version: '1.6'
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.6'
-          arch: 'x64'
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
