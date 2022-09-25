@@ -52,13 +52,15 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     if isfield(parameters, 'phase_scaling_type')
         clearswi_cmd = [clearswi_cmd, '--phase-scaling-type', parameters.phase_scaling_type];
     end
-    if isfield(parameters, 'additional_flags')
-        clearswi_cmd = [clearswi_cmd, parameters.additional_flags];
-    end
         
     % Add quotes (to support paths with spaces)
     for i = 1:length(clearswi_cmd)
         clearswi_cmd(i) = '"' + clearswi_cmd(i) + '"';
+    end
+    
+    % Additional flags added without quotes
+    if isfield(parameters, 'additional_flags')
+        clearswi_cmd = [clearswi_cmd, parameters.additional_flags];
     end
     
     % Create clearswi CMD command

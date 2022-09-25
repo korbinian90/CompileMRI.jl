@@ -1,6 +1,6 @@
 function [unwrapped, B0] = ROMEO(phase, parameters)
     [filepath, ~,~] = fileparts(mfilename('fullpath'));
-    romeo_path = fullfile(filepath, '..', 'bin');
+    romeo_path = 'C:/Users/korbi/Downloads/mritools_Windows_3.5.2/bin';%fullfile(filepath, '..', 'bin');
     romeo_name = 'romeo';
     if ispc
         romeo_name = 'romeo.exe';
@@ -60,13 +60,15 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     if isfield(parameters, 'phase_offset_correction')
         romeo_cmd = [romeo_cmd, '--phase-offset-correction', parameters.phase_offset_correction];
     end
-    if isfield(parameters, 'additional_flags')
-        romeo_cmd = [romeo_cmd, parameters.additional_flags];
-    end
     
     % Add quotes (to support paths with spaces)
     for i = 1:length(romeo_cmd)
         romeo_cmd(i) = '"' + romeo_cmd(i) + '"';
+    end
+    
+    % Additional flags added without quotes
+    if isfield(parameters, 'additional_flags')
+        romeo_cmd = [romeo_cmd, parameters.additional_flags];
     end
     
     % Create romeo CMD command
