@@ -39,6 +39,11 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     clearswi_cmd = [clearswi_cmd, '-o', fn_swi];
     clearswi_cmd = [clearswi_cmd, '-t', mat2str(parameters.TE)];
     
+    % Add quotes (to support paths with spaces)
+    for i = 1:length(clearswi_cmd)
+        clearswi_cmd(i) = '"' + clearswi_cmd(i) + '"';
+    end
+    
     % Optional parameters
     if isfield(parameters, 'mag_combine')
         clearswi_cmd = [clearswi_cmd, '--mag-combine', parameters.mag_combine];
@@ -57,13 +62,6 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     end
     if isfield(parameters, 'echoes')
         clearswi_cmd = [clearswi_cmd, '--echoes', parameters.echoes];
-    end
-    
-    
-
-    % Add quotes (to support paths with spaces)
-    for i = 1:length(clearswi_cmd)
-        clearswi_cmd(i) = '"' + clearswi_cmd(i) + '"';
     end
     
     % Additional flags added without quotes
