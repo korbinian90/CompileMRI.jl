@@ -1,6 +1,6 @@
 function [unwrapped, B0] = ROMEO(phase, parameters)
     [filepath, ~,~] = fileparts(mfilename('fullpath'));
-    romeo_path = 'C:/Users/korbi/Downloads/mritools_Windows_3.5.2/bin';%fullfile(filepath, '..', 'bin');
+    romeo_path = fullfile(filepath, '..', 'bin');
     romeo_name = 'romeo';
     if ispc
         romeo_name = 'romeo.exe';
