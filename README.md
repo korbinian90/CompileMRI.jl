@@ -24,8 +24,9 @@
    # optional: activate a local julia project in the current folder
    (@v1.7) pkg> activate . 
 
-   (compile) pkg> add https://github.com/korbinian90/CompileMRI.jl#master
+   (compile) pkg> dev https://github.com/korbinian90/CompileMRI.jl
    # All dependencies are installed automatically
+   (compile) pkg> build CompileMRI
    ```
 
 3. Create a command line executable
@@ -40,18 +41,8 @@
    ```
    
 ### Update to newest version
-To update to the newest version of the packages, type in the Julia REPL (Package manager):  
-**For updating CompileMRI**
-```
-julia> ] up CompileMRI
-```
-**For updating ROMEO and CLEAR-SWI**
-```julia
-   julia> using CompileMRI
-   julia> update()
-   julia> ] up # required to update depending packages
-   julia> ] build CompileMRI
-```
+Since I'm using unregistered packages in dev mode, it is tricky to get updates to packages.
+Easiest is to remove the folder `user/.julia/dev/CompileMRI` and start over at step 2.
 
 ## Known problems
 ### Workaround for Permission Denied Error
