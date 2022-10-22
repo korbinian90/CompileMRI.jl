@@ -81,9 +81,9 @@ function mcpc3ds_main(args)
         settings["no-mmap"] = true
     end
 
-    σ = [10,10,5]
+    sigma = [10,10,5]
     if !isempty(settings["smoothing-sigma"])
-        σ = parse_array(settings["smoothing-sigma"])
+        sigma = parse_array(settings["smoothing-sigma"])
     end
 
     mkpath(writedir)
@@ -109,7 +109,7 @@ function mcpc3ds_main(args)
     end
     mag = if !isnothing(settings["magnitude"]) readmag(settings["magnitude"], mmap=!settings["no-mmap"]) else ones(size(phase)) end # TODO trues instead ones?
     bipolar_correction = settings["bipolar"]
-    phase, mcomb = MriResearchTools.mcpc3ds(phase, mag; TEs, po, bipolar_correction, σ)
+    phase, mcomb = MriResearchTools.mcpc3ds(phase, mag; TEs, po, bipolar_correction, sigma)
     settings["verbose"] && println("Saving corrected_phase and phase_offset")
     savenii(phase, "combined_phase", writedir, hdr)
     savenii(mcomb, "combined_mag", writedir, hdr)
