@@ -17,16 +17,22 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     fn_mask = fullfile(output_dir, 'Mask.nii');
     fn_mag = fullfile(output_dir, 'Mag.nii');
     
-    phase_nii = make_nii(phase);
+    voxel_size = [1 1 1];
     if isfield(parameters, 'voxel_size')
-        phase_nii.hdr.dime.pixdim(2:4) = parameters.voxel_size;
+        voxel_size = parameters.voxel_size;
     end
+
+    phase_nii = make_nii(phase, voxel_size);
     save_nii(phase_nii, fn_phase);
+
     if isfield(parameters, 'mag') && ~isempty(parameters.mag)
-        save_nii(make_nii(parameters.mag), fn_mag);
+        mag_nii = make_nii(parameters.mag, voxel_size);
+        save_nii(mag_nii, fn_mag);
     end
+
     if isfield(parameters, 'mask') && isnumeric(parameters.mask)
-        save_nii(make_nii(parameters.mask), fn_mask);
+        mask_nii = make_nii(parameters.mask, voxel_size);
+        save_nii(mask_nii, fn_mask);
     end
     
     % Output Files
