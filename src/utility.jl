@@ -53,7 +53,13 @@ function romeo_version()
 end
 
 function mritools_version()
-    Pkg.TOML.parsefile(joinpath(get_apppath(), "Project.toml"))["version"]
+    version_file = joinpath(get_apppath(), "src", "App.jl")
+    for line in eachline(version_file)
+        if startswith(line, "const version = ")
+            return split(line, "\"")[2]
+        end
+    end
+    return "Unknown Version"
 end
 
 function test()
