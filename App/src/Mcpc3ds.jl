@@ -55,9 +55,9 @@ function getargs(args::AbstractVector, version)
     return parse_args(args, s)
 end
 
-function julia_main()::Cint
+function julia_main(version)::Cint
     try
-        mcpc3ds_main(ARGS)
+        mcpc3ds_main(ARGS; version)
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
@@ -65,9 +65,7 @@ function julia_main()::Cint
     return 0
 end
 
-function mcpc3ds_main(args)
-    version = "1.0.0"
-
+function mcpc3ds_main(args; version="1.0")
     settings = getargs(args, version)
     
     writedir = settings["output"]
