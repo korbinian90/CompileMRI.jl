@@ -10,16 +10,16 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          - macOS-latest
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - macOS-11
+          - macOS-12
+          - macOS-13
+          - windows-2019
         version:
-          - '1.8'
+          - '1.9'
         arch:
           - 'x64'
-        include:
-          - os: windows-latest
-            version: '1.6'
-            arch: 'x64'
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -37,20 +37,20 @@ jobs:
         run: |
           echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
           echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
-          mv compiled mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
-          tar -vczf mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ runner.os }}_${{ steps.version.outputs.version }}
+          mv compiled mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}
+          tar -vczf mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
           echo "ZIP_ENDING=zip" >> $env:GITHUB_ENV
           echo "ZIP_TYPE=zip" >> $env:GITHUB_ENV
-          Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.zip'
+          Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
-          asset_name: mritools_${{ runner.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          asset_path: ./mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          asset_name: mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
           asset_content_type: application/${{ env.ZIP_TYPE }}
