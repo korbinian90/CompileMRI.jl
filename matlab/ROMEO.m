@@ -84,7 +84,10 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     success = system(join(romeo_cmd)); % system() call should work on every machine
     
     if success ~= 0
-        error(['ROMEO unwrapping failed! Check input files for corruption in ', output_dir]);
+        error(['Something went wrong!' newline...
+            'It might be a library problem. See the section about MATLAB issues in the README: https://github.com/korbinian90/ROMEO#issues-when-calling-from-matlab' newline...
+            'Please also try if ROMEO works via the command line.' newline...
+            'Otherwise, please report the issue on github.']);
     end
     
     % Load the calculated output

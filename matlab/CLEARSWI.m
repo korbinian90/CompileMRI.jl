@@ -76,7 +76,10 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     success = system(join(clearswi_cmd)); % system() call should work on every machine
     
     if success ~= 0
-        error(['clearswi unwrapping failed! Check input files for corruption in ' output_dir]);
+        error(['Something went wrong!' newline...
+            'It might be a library problem. See the section about MATLAB issues in the README of ROMEO: https://github.com/korbinian90/ROMEO#issues-when-calling-from-matlab' newline...
+            'Please also try if CLEARSWI works via the command line.' newline...
+            'Otherwise, please report the issue on github.']);
     end
     
     % Load the calculated output
