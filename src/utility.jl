@@ -3,7 +3,7 @@ function get_apppath()
 end
 
 function get_appname(name)
-return Dict("romeo" => "RomeoApp", "clearswi" => "ClearswiApp")[name]
+return Dict("romeo" => "ROMEO", "clearswi" => "ClearswiApp")[name]
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)
@@ -46,10 +46,6 @@ function version()
     Pkg.activate(get_apppath())
     Pkg.status()
     Pkg.activate(pwd())
-end
-
-function romeo_version()
-    Pkg.TOML.parsefile(joinpath(pathof("RomeoApp"), "Project.toml"))["version"]
 end
 
 function mritools_version()

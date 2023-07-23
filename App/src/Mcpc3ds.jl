@@ -1,4 +1,3 @@
-module Mcpc3dsApp
 using MriResearchTools
 using ArgParse
 
@@ -53,16 +52,6 @@ function getargs(args::AbstractVector, version)
             action = :store_true
     end
     return parse_args(args, s)
-end
-
-function julia_main(version)::Cint
-    try
-        mcpc3ds_main(ARGS; version)
-    catch
-        Base.invokelatest(Base.display_error, Base.catch_stack())
-        return 1
-    end
-    return 0
 end
 
 function mcpc3ds_main(args; version="1.0")
@@ -151,8 +140,4 @@ function saveconfiguration(writedir, settings, args, version)
         println(io, """Arguments: $(join(args, " "))""")
         println(io, "Mcpc3dsApp version: $version")
     end
-end
-
-export mcpc3ds_main
-
 end
