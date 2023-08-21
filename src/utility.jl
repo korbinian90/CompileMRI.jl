@@ -3,7 +3,7 @@ function get_apppath()
 end
 
 function get_appname(name)
-return Dict("romeo" => "ROMEO", "clearswi" => "ClearswiApp")[name]
+return Dict("romeo" => "ROMEO", "clearswi" => "CLEARSWI")[name]
 end
 
 pathof(app) = normpath(homedir(), ".julia/dev", app)

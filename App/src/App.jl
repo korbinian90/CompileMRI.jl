@@ -3,9 +3,10 @@ module App
 using MriResearchTools
 using ArgParse
 import ROMEO: unwrapping_main
-import ClearswiApp
+import CLEARSWI: clearswi_main
 
 include("Mcpc3ds.jl")
+import .Mcpc3dsApp: mcpc3ds_main
 
 const version = "4.0.0"
 
@@ -19,7 +20,15 @@ function romeo()::Cint
     return 0
 end
 
-clearswi() = ClearswiApp.julia_main(version)
+function clearswi()::Cint
+    try
+        clearswi_main(ARGS; version)
+    catch
+        Base.invokelatest(Base.display_error, Base.catch_stack())
+        return 1
+    end
+    return 0
+end
 
 function mcpc3ds()::Cint
     try
@@ -32,5 +41,5 @@ function mcpc3ds()::Cint
 end
 
 export romeo, clearswi, mcpc3ds
-# add romeo_mask, intensity_correction
+# add romeo_mask, intensity_correction, TGV_QSM
 end # module
