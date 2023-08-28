@@ -1,8 +1,6 @@
 using Pkg
 include("../App/src/App.jl")
 using .App.Mcpc3dsApp
-Pkg.test("Mcpc3dsApp")
-@show "test finished"
 
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))

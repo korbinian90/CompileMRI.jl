@@ -1,2 +1,7 @@
 [deps]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+CLEARSWI = "06ae4d9b-ce5e-4813-a1b3-426e46312ec2"
+MriResearchTools = "557dad86-b9bd-4533-8525-1a39684d020f"
+ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"

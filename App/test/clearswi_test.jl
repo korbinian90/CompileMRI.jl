@@ -1,9 +1,10 @@
 using CLEARSWI, ArgParse
 import Pkg
 Pkg.test("CLEARSWI")
-@show "test finished"
-phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
-magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
+
+p = joinpath("..", "..", "test", "data", "small")
+phasefile = joinpath(p, "Phase.nii")
+magfile = joinpath(p, "Mag.nii") 
 
 function test_clearswi(args)
     file = tempname()
@@ -13,4 +14,3 @@ end
 
 args = ["-p", phasefile, "-m", magfile, "-t", "1:3"]
 test_clearswi(args)
-@test false

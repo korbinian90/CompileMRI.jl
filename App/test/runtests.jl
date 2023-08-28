@@ -1,11 +1,11 @@
 using Test
 
 @testset "CLEARSWI" begin
-    # include("clearswi_test.jl")
+    include("clearswi_test.jl")
 end
 
 @testset "ROMEO" begin
-    # include("romeo_test.jl")
+    include("romeo_test.jl")
 end
 
 @testset "MCPC3DS" begin

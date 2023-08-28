@@ -1,9 +1,10 @@
-using Pkg, ROMEO, ArgParse
-@test 5 == 7
+using ROMEO, ArgParse
+import Pkg
 Pkg.test("ROMEO")
-@show "test finished"
-phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
-magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
+
+p = joinpath("..", "..", "test", "data", "small")
+phasefile = joinpath(p, "Phase.nii")
+magfile = joinpath(p, "Mag.nii")
 
 function test_romeo(args)
     file = tempname()

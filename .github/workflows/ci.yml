@@ -6,18 +6,15 @@ jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
-    if: "contains(github.event.head_commit.message, 'CI')"
     strategy:
       fail-fast: false
       matrix:
         version:
           - '1.6'
           - '1.9'
-          - 'nightly'
         os:
           - ubuntu-latest
           - macOS-latest
-          - windows-2019
           - windows-latest
         arch:
           - x64
