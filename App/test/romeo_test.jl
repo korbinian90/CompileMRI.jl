@@ -1,5 +1,6 @@
-using Pkg, RomeoApp
-Pkg.test("RomeoApp")
+using Pkg, ROMEO, ArgParse
+@test 5 == 7
+Pkg.test("ROMEO")
 @show "test finished"
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))

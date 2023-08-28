@@ -1,10 +1,8 @@
-using Test
 using App.Mcpc3dsApp
+using MriResearchTools
 
-@testset "MCPC3DS function tests" begin
-
-niread = Mcpc3dsApp.niread
-savenii = Mcpc3dsApp.savenii
+# niread = Mcpc3dsApp.niread
+# savenii = Mcpc3dsApp.savenii
 
 p = joinpath("..", "..", "test", "data", "small")
 phasefile_me = joinpath(p, "Phase.nii")
@@ -54,7 +52,6 @@ for args in configurations_me(phasefile_me_5D, magfile_5D)
     test_mcpc3ds(args)
 end
 
-
 ## Test error and warning messages
 m = "No echo times are given. Please specify the echo times using the -t option."
 @test_throws ErrorException(m) mcpc3ds_main(["-p", phasefile_me, "-m", magfile_me, "-o", tmpdir, "-v"])
@@ -66,7 +63,5 @@ m = "Phase offset determination requires all echo times!"
 @test_logs mcpc3ds_main(["-p", phasefile_me_5D, "-o", tmpdir, "-m", magfile_5D, "-t", "[2,4,6]"]) # test that no warning appears
 
 ## print version to verify
-println()
-mcpc3ds_main(["--version"])
-
-end
+# println()
+# mcpc3ds_main(["--version"])

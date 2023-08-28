@@ -1,5 +1,6 @@
-using Pkg, ClearswiApp
-Pkg.test("ClearswiApp")
+using CLEARSWI, ArgParse
+import Pkg
+Pkg.test("CLEARSWI")
 @show "test finished"
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
@@ -12,3 +13,4 @@ end
 
 args = ["-p", phasefile, "-m", magfile, "-t", "1:3"]
 test_clearswi(args)
+@test false
