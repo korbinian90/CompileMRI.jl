@@ -2,3 +2,17 @@ name = "App"
 uuid = "d128dbd7-c220-4b47-8215-94b2c1b98d91"
 authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
 version = "4.0.0"
+
+[deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+CLEARSWI = "06ae4d9b-ce5e-4813-a1b3-426e46312ec2"
+MriResearchTools = "557dad86-b9bd-4533-8525-1a39684d020f"
+ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
+
+
+[compat]
+julia = "1.6"
+ArgParse = "1"
+CLEARSWI = "1.1"
+MriResearchTools = "3"
+ROMEO = "1"
