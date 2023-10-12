@@ -80,14 +80,15 @@ function [unwrapped, B0] = ROMEO(phase, parameters)
     % Create romeo CMD command
     disp(join(['ROMEO command:', romeo_cmd]))
     
-    % Run romeo
+    % Run romeo (with path fixing on linux)
+    if isunix; paths = getenv('LD_LIBRARY_PATH'); setenv('LD_LIBRARY_PATH'); end
     success = system(join(romeo_cmd)); % system() call should work on every machine
+    if isunix; setenv('LD_LIBRARY_PATH', paths); end
     
     if success ~= 0
         error(['Something went wrong!' newline...
-            'It might be a library problem. See the section about MATLAB issues in the README: https://github.com/korbinian90/ROMEO#issues-when-calling-from-matlab' newline...
             'Please also try if ROMEO works via the command line.' newline...
-            'Otherwise, please report the issue on github.']);
+            'Otherwise, please report the issue on https://github.com/korbinian90/ROMEO/issues']);
     end
     
     % Load the calculated output

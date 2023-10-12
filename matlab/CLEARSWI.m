@@ -72,14 +72,15 @@ function [swi, mip] = CLEARSWI(mag, phase, parameters)
     % Create clearswi CMD command
     disp(join(['clearswi command:', clearswi_cmd]))
     
-    % Run clearswi
+    % Run clearswi (with path fixing on linux)
+    if isunix; paths = getenv('LD_LIBRARY_PATH'); setenv('LD_LIBRARY_PATH'); end
     success = system(join(clearswi_cmd)); % system() call should work on every machine
-    
+    if isunix; setenv('LD_LIBRARY_PATH', paths); end
+
     if success ~= 0
         error(['Something went wrong!' newline...
-            'It might be a library problem. See the section about MATLAB issues in the README of ROMEO: https://github.com/korbinian90/ROMEO#issues-when-calling-from-matlab' newline...
             'Please also try if CLEARSWI works via the command line.' newline...
-            'Otherwise, please report the issue on github.']);
+            'Otherwise, please report the issue on https://github.com/korbinian90/CompileMRI.jl/issues']);
     end
     
     % Load the calculated output
