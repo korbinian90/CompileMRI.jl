@@ -31,7 +31,7 @@ function test(path, app_name)
     file = tempname()
     phasefile = abspath(joinpath(@__DIR__, "..", "test", "data", "small", "Phase.nii"))
     magfile = abspath(joinpath(@__DIR__, "..", "test", "data", "small", "Mag.nii"))
-    args_dict = Dict("romeo" => [phasefile, "-o", file, "-t", "1:3", "-k", "nomask"],
+    args_dict = Dict("romeo" => ["-p", phasefile, "-o", file, "-t", "1:3", "-k", "nomask"],
                 "clearswi" => ["-p", phasefile, "-m", magfile, "-o", file, "-t", "1:3"],
                 "mcpc3ds" => ["-p", phasefile, "-m", magfile, "-o", file, "-t", "1:3"])
     args = args_dict[app_name]
