@@ -10,8 +10,8 @@ function test_romeo(args)
     unwrapping_main(args)
 end
 
-args = [phasefile, "-B", "-t", "1:3"]
+args = ["-p", phasefile, "-B", "-t", "1:3"]
 test_romeo(args)
 
-args = [phasefile, "-m", magfile, "-t", "1:3"]
+args = ["-p", phasefile, "-m", magfile, "-t", "1:3"]
 test_romeo(args)
