@@ -12,3 +12,6 @@ end
 
 args = ["-p", phasefile, "-m", magfile, "-t", "1:3"]
 test_clearswi(args)
+
+args = ["-p", phasefile, "-m", magfile, "-t", "1:3", "--qsm"]
+test_clearswi(args)

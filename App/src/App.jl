@@ -2,13 +2,14 @@ module App
 
 using MriResearchTools
 using ArgParse
+using QSM
 import ROMEO: unwrapping_main
 import CLEARSWI: clearswi_main
 
 include("Mcpc3ds.jl")
 import .Mcpc3dsApp: mcpc3ds_main
 
-const version = "4.0.3"
+const version = "4.0.5"
 
 function romeo()::Cint
     try
