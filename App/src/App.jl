@@ -9,7 +9,7 @@ import CLEARSWI: clearswi_main
 include("Mcpc3ds.jl")
 import .Mcpc3dsApp: mcpc3ds_main
 
-const version = "4.0.5"
+const version = "4.0.6"
 
 function romeo()::Cint
     try

@@ -1,7 +1,7 @@
 name = "App"
 uuid = "d128dbd7-c220-4b47-8215-94b2c1b98d91"
 authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
-version = "4.0.5"
+version = "4.0.6"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
