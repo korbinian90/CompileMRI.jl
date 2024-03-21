@@ -10,7 +10,7 @@
 
 1. Install Julia
 
-   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.7 or newer is recommended, some package managers install outdated versions)
+   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.10 or newer is recommended, some package managers install outdated versions)
 
 2. Install CompileMRI
 
