@@ -64,7 +64,7 @@ function mcpc3ds_main(args; version="1.0")
     
     writedir = settings["output"]
     filename = "combined"
-    if occursin(r"\.nii$", writedir)
+    if occursin(r"\.nii(\.gz)?$", writedir)
         filename = basename(writedir)
         writedir = dirname(writedir)
     end
