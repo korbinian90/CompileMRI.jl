@@ -1,5 +1,5 @@
 function compile(path="compiled";
-        apps = ["romeo", "clearswi", "mcpc3ds", "makehomogeneous"],
+        apps = ["romeo", "clearswi", "mcpc3ds", "makehomogeneous", "romeo_mask"],
         filter_stdlibs=true,
         precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
         include_transitive_dependencies=false,

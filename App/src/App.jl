@@ -8,8 +8,10 @@ import CLEARSWI: clearswi_main
 
 include("Mcpc3ds.jl")
 include("HomogeneityCorrection.jl")
+include("ROMEO_mask.jl")
 import .Mcpc3dsApp: mcpc3ds_main
 import .HomogeneityCorrection: makehomogeneous_main
+import .RomeoMasking: romeo_mask_main
 
 const version = "4.0.6"
 
@@ -53,6 +55,15 @@ function makehomogeneous()::Cint
     return 0
 end
 
-export romeo, clearswi, mcpc3ds, makehomogeneous
-# add romeo_mask
+function romeo_mask()::Cint
+    try
+        romeo_mask_main(ARGS; version)
+    catch
+        Base.invokelatest(Base.display_error, Base.catch_stack())
+        return 1
+    end
+    return 0
+end
+
+export romeo, clearswi, mcpc3ds, makehomogeneous, romeo_mask
 end # module

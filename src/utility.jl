@@ -34,7 +34,8 @@ function test(path, app_name)
     args_dict = Dict("romeo" => ["-p", phasefile, "-o", file, "-t", "1:3", "-k", "nomask"],
                 "clearswi" => ["-p", phasefile, "-m", magfile, "-o", file, "-t", "1:3"],
                 "mcpc3ds" => ["-p", phasefile, "-m", magfile, "-o", file, "-t", "1:3"],
-                "makehomogeneous" => ["-m", magfile, "-s", "3", "-n", "4"])
+                "makehomogeneous" => ["-m", magfile, "-o", file, "-s", "3", "-n", "4"],
+                "romeo_mask" => ["-p", phasefile, "-m", magfile, "-o", file, "-t", "1:3"])
     args = args_dict[app_name]
     name = app_name * (Sys.iswindows() ? ".exe" : "")
     executable = joinpath(path, "bin", name)
