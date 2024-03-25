@@ -144,5 +144,22 @@ function saveconfiguration(writedir, settings, args, version)
         println(io, """Arguments: $(join(args, " "))""")
         println(io, "Mcpc3dsApp version: $version")
     end
+    open(joinpath(writedir, "citations_mcpc3ds.txt"), "w") do io
+        println(io, "# If you use this software, please cite:")
+        println(io)
+        println(io, """Eckstein, K., Dymerska, B., Bachrata, B., Bogner, W., Poljanc, K., Trattnig, S., Robinson, S.D., 2018.
+                    Computationally Efficient Combination of Multi-channel Phase Data From Multi-echo Acquisitions (ASPIRE).
+                    Magnetic Resonance in Medicine 79, 2996-3006.
+                    https://doi.org/10.1002/mrm.26963""")
+        println(io)
+        
+        println(io)
+        println(io, "# Optional citations:")
+        println(io)
+        println(io, """Bezanson, J., Edelman, A., Karpinski, S., Shah, V.B., 2017.
+                    Julia: A fresh approach to numerical computing
+                    SIAM Review 59, 65--98
+                    https://doi.org/10.1137/141000671""")
+    end
 end
 end

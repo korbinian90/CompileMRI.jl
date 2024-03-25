@@ -166,6 +166,33 @@ function saveconfiguration(writedir, settings, args, version)
         println(io, """Arguments: $(join(args, " "))""")
         println(io, "RomeoMask version: $version")
     end
+    open(joinpath(writedir, "citations_romeo_mask.txt"), "w") do io
+        println(io, "# If you use this software, please cite:")
+        println(io)
+        println(io, """Dymerska, B., Eckstein, K., Bachrata, B., Siow, B., Trattnig, S., Shmueli, K., Robinson, S.D., 2020.
+                    Phase Unwrapping with a Rapid Opensource Minimum Spanning TreE AlgOrithm (ROMEO).
+                    Magnetic Resonance in Medicine.
+                    https://doi.org/10.1002/mrm.28563""")
+        println(io)
+        
+        println(io)
+        println(io, "# Optional citations:")
+        println(io)
+        println(io, """Hagberg, G.E., Eckstein, K., Tuzzi, E., Zhou, J., Robinson, S.D., Scheffler, K., 2022.
+                    Phase-based masking for quantitative susceptibility mapping of the human brain at 9.4T.
+                    Magnetic Resonance in Medicine.
+                    https://doi.org/10.1002/mrm.29368""")
+        println(io)
+        println(io, """Stewart, A.W., Robinson, S.D., O'Brien, K., Jin, J., Widhalm, G., Hangel, G., Walls, A., Goodwin, J., Eckstein, K., Tourell, M., Morgan, C., Narayanan, A., Barth, M., Bollmann, S., 2022.
+                    QSMxT: Robust masking and artifact reduction for quantitative susceptibility mapping.
+                    Magnetic Resonance in Medicine.
+                    https://doi.org/10.1002/mrm.29048""")
+        println(io)
+        println(io, """Bezanson, J., Edelman, A., Karpinski, S., Shah, V.B., 2017.
+                    Julia: A fresh approach to numerical computing
+                    SIAM Review 59, 65--98
+                    https://doi.org/10.1137/141000671""")
+    end
 end
 
 function load_data_and_resolve_args!(settings)
