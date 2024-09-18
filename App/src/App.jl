@@ -13,7 +13,7 @@ import .Mcpc3dsApp: mcpc3ds_main
 import .HomogeneityCorrection: makehomogeneous_main
 import .RomeoMasking: romeo_mask_main
 
-const version = "4.0.6"
+const version = "4.3.0"
 
 function romeo()::Cint
     try

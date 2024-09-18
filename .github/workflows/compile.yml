@@ -17,23 +17,18 @@ jobs:
           - macOS-13
           - windows-2019
         version:
-          - '1.9'
+          - 'pre'
         arch:
           - 'x64'
     steps:
       - uses: actions/checkout@v4
-      - name: Configure Pagefile (Windows)
-        if: ${{ runner.os == 'Windows' }}
-        uses: al-cheb/configure-pagefile-action@v1.3
-        with:
-          minimum-size: 12GB
-      - uses: julia-actions/setup-julia@v1
+      - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/julia-buildpkg@latest
       - name: Compile
-        run: julia --heap-size-hint=1G --color=yes --project=@. -e 'using CompileMRI; compile()'
+        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
         run: echo "::set-output name=version::$(julia --project=@. -e 'using CompileMRI; println(CompileMRI.mritools_version())')"
         id: version
