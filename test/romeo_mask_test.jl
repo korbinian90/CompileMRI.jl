@@ -34,7 +34,7 @@ test_romeo_mask(args)
 args = ["-p", phasefile, "-t", "1:3", "-w", "100011"]
 test_romeo_mask(args)
 
-args = ["-p", phasefile, "-t", "1:3", "--no-rescale"]
+args = ["-p", phasefile, "-t", "1:3", "--no-phase-rescale"]
 test_romeo_mask(args)
 
 args = ["-p", phasefile, "-t", "1:3", "-v"]

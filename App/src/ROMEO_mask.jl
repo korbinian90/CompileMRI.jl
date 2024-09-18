@@ -69,7 +69,7 @@ function getargs(args::AbstractVector, version)
                 (2)phasegradientcoherence (3)phaselinearity (4)magcoherence
                 (5)magweight (6)magweight2"""
             default = "romeo"
-        "--no-rescale"
+        "--no-phase-rescale"
             help = """Deactivate rescaling of input phase. By default the
                 input phase is rescaled to the range [-π;π]. This option
                 allows inputting already unwrapped phase images without
