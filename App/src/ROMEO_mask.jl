@@ -75,6 +75,10 @@ function getargs(args::AbstractVector, version)
                 allows inputting already unwrapped phase images without
                 manually wrapping them first."""
             action = :store_true
+        "--fix-ge-phase"
+            help = """GE systems write corrupted phase output (slice jumps).
+                This option fixes the phase problems."""
+            action = :store_true
         "--verbose", "-v"
             help = "verbose output messages"
             action = :store_true
@@ -211,7 +215,7 @@ function load_data_and_resolve_args!(settings)
     end
 
     data = Dict{String,AbstractArray}()
-    data["phase"] = readphase(settings["phase"], rescale=!settings["no-rescale"])
+    phase = readphase(settings["phase"]; rescale=!settings["no-phase-rescale"], fix_ge=settings["fix-ge-phase"])
     settings["verbose"] && println("Phase loaded!")
     if !isnothing(settings["magnitude"])
         data["mag"] = readmag(settings["magnitude"])

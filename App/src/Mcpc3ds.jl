@@ -47,6 +47,10 @@ function getargs(args::AbstractVector, version)
             help = """Deactivate automatic rescaling of phase images. By
                 default the input phase is rescaled to the range [-π;π]."""
             action = :store_true
+        "--fix-ge-phase"
+            help = """GE systems write corrupted phase output (slice jumps).
+                This option fixes the phase problems."""
+            action = :store_true
         "--writesteps"
             help = """Set to the path of a folder, if intermediate steps should
                 be saved."""
@@ -81,7 +85,7 @@ function mcpc3ds_main(args; version="1.0")
     mkpath(writedir)
     saveconfiguration(writedir, settings, args, version)
 
-    phase = readphase(settings["phase"], mmap=!settings["no-mmap"], rescale=!settings["no-phase-rescale"])
+    phase = readphase(settings["phase"]; mmap=(!settings["no-mmap"] && !settings["fix-ge-phase"]), rescale=!settings["no-phase-rescale"], fix_ge=settings["fix-ge-phase"])    
     hdr = header(phase)
     neco = size(phase, 4)
 
