@@ -215,7 +215,7 @@ function load_data_and_resolve_args!(settings)
     end
 
     data = Dict{String,AbstractArray}()
-    phase = readphase(settings["phase"]; rescale=!settings["no-phase-rescale"], fix_ge=settings["fix-ge-phase"])
+    data["phase"] = readphase(settings["phase"]; rescale=!settings["no-phase-rescale"], fix_ge=settings["fix-ge-phase"])
     settings["verbose"] && println("Phase loaded!")
     if !isnothing(settings["magnitude"])
         data["mag"] = readmag(settings["magnitude"])
