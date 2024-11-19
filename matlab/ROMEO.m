@@ -1,11 +1,15 @@
 function [unwrapped, B0] = ROMEO(phase, parameters)
-    [filepath, ~,~] = fileparts(mfilename('fullpath'));
-    romeo_path = fullfile(filepath, '..', 'bin');
-    romeo_name = 'romeo';
-    if ispc
-        romeo_name = 'romeo.exe';
-    end
-    romeo_binary = fullfile(romeo_path, romeo_name); 
+	if isfield(parameters, 'command') && ~isempty(parameters.command)
+        romeo_binary = parameters.command;
+	else
+        [filepath, ~,~] = fileparts(mfilename('fullpath'));
+        romeo_path = fullfile(filepath, '..', 'bin');
+        romeo_name = 'romeo';
+        if ispc
+            romeo_name = 'romeo.exe';
+        end
+        romeo_binary = fullfile(romeo_path, romeo_name); 
+	end
     
     output_dir = pwd();
     if isfield(parameters, 'output_dir')
