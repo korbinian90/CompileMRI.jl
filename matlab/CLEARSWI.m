@@ -1,12 +1,16 @@
 function [swi, mip] = CLEARSWI(mag, phase, parameters)
-    [filepath, ~,~] = fileparts(mfilename('fullpath'));
-    clearswi_path = fullfile(filepath, '..', 'bin');
-    clearswi_name = 'clearswi';
-    if ispc
-        clearswi_name = 'clearswi.exe';
+    if isfield(parameters, 'command') && ~isempty(parameters.command)
+        clearswi_binary = parameters.command;
+    else
+        [filepath, ~,~] = fileparts(mfilename('fullpath'));
+        clearswi_path = fullfile(filepath, '..', 'bin');
+        clearswi_name = 'clearswi';
+        if ispc
+            clearswi_name = 'clearswi.exe';
+        end
+        clearswi_binary = fullfile(clearswi_path, clearswi_name); 
     end
     
-    clearswi_binary = fullfile(clearswi_path, clearswi_name); 
     
     output_dir = pwd();
     if isfield(parameters, 'output_dir')
