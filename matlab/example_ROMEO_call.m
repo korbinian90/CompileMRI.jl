@@ -17,6 +17,7 @@ parameters.calculate_B0 = true; % optianal B0 calculation for multi-echo
 parameters.phase_offset_correction = 'off'; % options are: 'off' | 'on' | 'bipolar'
 parameters.voxel_size = load_nii_hdr(phase_fn).dime.pixdim(2:4); % if set the written NIfTI files will have the matching voxelsize; is also used for optimal kernel size in MCPC-3D-S phase offset smoothing; can be given as [0.3, 0.3, 1.2]
 parameters.additional_flags = '--verbose -q -i'; % settings are pasted directly to ROMEO cmd (see https://github.com/korbinian90/ROMEO for options)
+% parameters.command = '<romeo_location>'; % for special cases, when romeo binary is not found or a wrapper is used
 
 %% Suggested steps
 mkdir(parameters.output_dir);

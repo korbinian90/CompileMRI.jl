@@ -16,6 +16,7 @@ parameters.unwrapping_algorithm = 'laplacian';
 parameters.phase_scaling_strength = '4';
 parameters.phase_scaling_type = 'tanh';
 parameters.additional_flags = '--verbose'; % additional_flags are pasted directly to CLEARSWI cmd (run "$ bin/clearswi --help" for options)
+% parameters.command = '<clearswi_location>'; % for special cases, when clearswi binary is not found or a wrapper is used
 
 %% Suggested steps
 mkdir(parameters.output_dir);
