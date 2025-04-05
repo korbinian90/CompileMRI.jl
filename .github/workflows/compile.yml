@@ -17,7 +17,7 @@ jobs:
           - macOS-13
           - windows-2019
         version:
-          - '1.9'
+          - '1.10'
         arch:
           - 'x64'
     steps:
