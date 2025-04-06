@@ -10,9 +10,9 @@
 
 1. Install Julia
 
-   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.9 is recommended, newer versions might error)
+   Please install Julia using the binaries from this page https://julialang.org. (Julia 1.10 is recommended, newer versions might error)
 
-2. Install CompileMRI
+2. Install CompileMRI (For julia 1.9 see below)
 
    Start Julia (Type julia in the command line or start the installed Julia executable)
 
@@ -23,7 +23,7 @@
    # Enters the Julia package manager
 
    # optional: activate a local julia project in the current folder
-   (@v1.9) pkg> activate . 
+   (@v1.10) pkg> activate . 
 
    (compile) pkg> dev https://github.com/korbinian90/CompileMRI.jl
    # All dependencies are installed automatically
@@ -69,3 +69,27 @@ julia> compile("/tmp/compiled"; force=true)
 ```
 
 should work.
+
+## Installing CompileMRI version for Julia 1.9
+
+```julia
+julia> ] # Be sure to type the closing bracket via the keyboard
+# Enters the Julia package manager
+
+# optional: activate a local julia project in the current folder
+(@v1.10) pkg> activate . 
+
+(compile) pkg> dev https://github.com/korbinian90/CompileMRI.jl
+```
+
+Manually navigate to `~/.julia/dev/CompileMRI` in a system shell and checkout last julia 1.9 compatible version:
+
+```bash
+   git checkout v1.9
+```
+
+Continue in julia REPL
+
+```julia
+(compile) pkg> build CompileMRI
+```
