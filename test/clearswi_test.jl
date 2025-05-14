@@ -1,4 +1,4 @@
-using Pkg, CLEARSWI, QSM, ArgParse
+using Pkg, CLEARSWI, QuantitativeSusceptibilityMappingTGV, ArgParse
 Pkg.test("CLEARSWI")
 @show "test finished"
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
