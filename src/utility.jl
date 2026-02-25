@@ -9,10 +9,16 @@ end
 pathof(app) = normpath(homedir(), ".julia/dev", app)
 
 function copy_matlab(path)
-    cp(joinpath(dirname(@__DIR__), "matlab"), joinpath(path, "matlab"))
+    dest = joinpath(path, "matlab")
+    isdir(dest) && rm(dest; recursive=true)
+    cp(joinpath(dirname(@__DIR__), "matlab"), dest)
 end
 
 function copy_documentation(path)
+    for file in ("README.md", "LICENSE")
+        dest = joinpath(path, file)
+        isfile(dest) && rm(dest)
+    end
     cp(joinpath(dirname(@__DIR__), "documentation", "README.md"), joinpath(path, "README.md"))
     cp(joinpath(dirname(@__DIR__), "LICENSE"), joinpath(path, "LICENSE"))
 end
@@ -39,9 +45,9 @@ function test(path, app_name)
     args = args_dict[app_name]
     name = app_name * (Sys.iswindows() ? ".exe" : "")
     executable = joinpath(path, "bin", name)
-    @assert isfile(executable)
+    @assert isfile(executable) "Executable not found: $executable"
     cmd = `$executable $args`
-    @assert success(run(cmd))
+    @assert success(run(cmd)) "Test failed for $app_name"
 end
 
 function version()

@@ -1,13 +1,64 @@
+"""
+    compile(path="compiled"; kwargs...)
+
+Compile all MRI tools into standalone executables using PackageCompiler.
+
+Uses `--strip-ir` and `--strip-metadata` to produce smaller binaries (JuliaC-style stripping).
+Standard libraries are filtered and lazy artifacts excluded to minimize binary size.
+
+# Keyword Arguments
+- `apps`: Vector of app names to compile (default: all 5 tools)
+- `filter_stdlibs`: Remove unused standard libraries (default: true)
+- `include_lazy_artifacts`: Include lazy artifacts (default: false)
+- `include_transitive_dependencies`: Include transitive deps (default: false)
+- `strip`: Strip IR and metadata from the sysimage for smaller binaries (default: true)
+- `precompile_execution_file`: File to run for precompilation warmup
+- `cpu_target`: CPU target string (default: PackageCompiler's app default)
+- `force`: Overwrite existing output directory (default: false)
+"""
 function compile(path="compiled";
         apps = ["romeo", "clearswi", "mcpc3ds", "makehomogeneous", "romeo_mask"],
         filter_stdlibs=true,
-        precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
+        include_lazy_artifacts=false,
         include_transitive_dependencies=false,
+        strip=true,
+        precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
+        cpu_target=nothing,
         kw...)
 
     apppath = joinpath(dirname(@__DIR__), "App")
-    executables=[c=>c for c in apps]
-    create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, include_transitive_dependencies, kw...)
+    executables = [c => c for c in apps]
+
+    # Build sysimage args for smaller binaries (JuliaC-style stripping)
+    sysimage_build_args = if strip
+        `--strip-ir --strip-metadata`
+    else
+        ``
+    end
+
+    create_app_kwargs = Dict{Symbol,Any}(
+        :executables => executables,
+        :filter_stdlibs => filter_stdlibs,
+        :precompile_execution_file => precompile_execution_file,
+        :include_transitive_dependencies => include_transitive_dependencies,
+        :include_lazy_artifacts => include_lazy_artifacts,
+        :sysimage_build_args => sysimage_build_args,
+    )
+
+    if !isnothing(cpu_target)
+        create_app_kwargs[:cpu_target] = cpu_target
+    end
+
+    # Merge any additional keyword arguments
+    for (k, v) in kw
+        create_app_kwargs[k] = v
+    end
+
+    printstyled("Compiling $(length(apps)) MRI tools"; color=:cyan)
+    strip && printstyled(" with IR/metadata stripping for smaller binaries"; color=:cyan)
+    println()
+
+    create_app(apppath, path; create_app_kwargs...)
 
     for app in apps
         test(path, app)

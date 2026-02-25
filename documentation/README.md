@@ -1,5 +1,5 @@
 # Executables
-The folder `bin` contains the executables `romeo`, `clearswi` and `mcpc3ds`
+The folder `bin` contains the executables `romeo`, `clearswi`, `mcpc3ds`, `makehomogeneous` and `romeo_mask`
 
 # Help
 Help for the individual commands can be printed via the command line, e.g.:
