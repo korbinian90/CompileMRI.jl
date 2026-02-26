@@ -9,5 +9,5 @@ using Pkg
 end
 
 @testset "Compile Test" begin
-    # include("compile_test.jl")
+    include("compile_test.jl")
 end
