@@ -11,7 +11,6 @@ jobs:
       matrix:
         version:
           - '1.12'
-          - 'pre'
         os:
           - ubuntu-latest
           - macOS-latest
@@ -24,9 +23,6 @@ jobs:
         include:
           - os: macOS-latest
             version: '1.12'
-            arch: aarch64
-          - os: macOS-latest
-            version: 'pre'
             arch: aarch64
     steps:
       - uses: actions/checkout@v4
@@ -46,3 +42,24 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
+  compile:
+    name: Compile Test - ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.12'
+      - uses: actions/cache@v4
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-compile-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-compile-${{ env.cache-name }}-
+            ${{ runner.os }}-compile-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
+      - name: Compile and test executables
+        run: julia --color=yes --project=@. -e 'using CompileMRI; using Test; include("test/compile_test.jl")'
