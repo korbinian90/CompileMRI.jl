@@ -110,6 +110,7 @@ function mcpc3ds_main(args; version="1.0")
     savenii(phase, "combined_phase", writedir, hdr)
     savenii(mcomb, "combined_mag", writedir, hdr)
     settings["write-phase-offsets"] && settings["no-mmap"] && savenii(po, "phase_offset", writedir, hdr)
+    return 0
 end
 
 function exception_handler(settings::ArgParseSettings, err, err_code::Int=1)

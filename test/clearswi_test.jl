@@ -1,6 +1,4 @@
-using Pkg, CLEARSWI, QuantitativeSusceptibilityMappingTGV, ArgParse
-Pkg.test("CLEARSWI")
-@show "test finished"
+using CLEARSWI, QuantitativeSusceptibilityMappingTGV, ArgParse
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
 

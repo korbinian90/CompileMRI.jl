@@ -1,6 +1,4 @@
-using Pkg, ROMEO, ArgParse
-Pkg.test("ROMEO")
-@show "test finished"
+using ROMEO, ArgParse
 phasefile = abspath(joinpath(@__DIR__, "data", "small", "Phase.nii"))
 magfile = abspath(joinpath(@__DIR__, "data", "small", "Mag.nii"))
 
