@@ -1,7 +1,9 @@
 name: CI
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - master
+  pull_request:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -10,13 +12,20 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - 'pre'
+          - '1.12'
         os:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
         arch:
           - x64
+        exclude:
+          - os: macOS-latest
+            arch: x64
+        include:
+          - os: macOS-latest
+            version: '1.12'
+            arch: aarch64
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
@@ -35,3 +44,30 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
+  compile:
+    name: Compile Test - ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.12'
+      - uses: actions/cache@v4
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-compile-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-compile-${{ env.cache-name }}-
+            ${{ runner.os }}-compile-
+            ${{ runner.os }}-
+      - uses: julia-actions/julia-buildpkg@latest
+      - name: Compile
+        run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
+      - name: Test compiled executables
+        run: |
+          for app in romeo clearswi mcpc3ds makehomogeneous romeo_mask; do
+            echo "Testing $app..."
+            ./compiled/bin/$app --help
+          done
