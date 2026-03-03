@@ -1,6 +1,4 @@
 using ROMEO, ArgParse
-import Pkg
-Pkg.test("ROMEO")
 
 p = joinpath("..", "..", "test", "data", "small")
 phasefile = joinpath(p, "Phase.nii")

@@ -43,18 +43,18 @@
    julia> compile("/tmp/compiled"; force=true)
    ```
 
-   The binaries are compiled with `--strip-ir` and `--strip-metadata` by default
-   for smaller binary sizes. To disable stripping (e.g. for debugging):
+   The binaries are compiled with `--strip-ir` by default for smaller binary sizes.
+   To disable stripping (e.g. for debugging):
 
    ```julia
    julia> compile("/tmp/compiled"; strip=false)
    ```
 
-   A broad CPU target (`sandybridge` and above) is used by default to ensure compatibility
-   with older hardware. To compile for the native CPU instead:
+   The default CPU target (`sandybridge` and above on x86_64) ensures compatibility
+   with older hardware and avoids AVX-512. To specify a custom CPU target:
 
    ```julia
-   julia> compile("/tmp/compiled"; cpu_target=nothing)
+   julia> compile("/tmp/compiled"; cpu_target="generic")
    ```
 
 ### Update to newest version

@@ -1,6 +1,4 @@
 using CLEARSWI, ArgParse
-import Pkg
-Pkg.test("CLEARSWI")
 
 p = joinpath("..", "..", "test", "data", "small")
 phasefile = joinpath(p, "Phase.nii")
