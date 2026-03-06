@@ -1,5 +1,5 @@
 include(joinpath(@__DIR__, "..", "src", "App.jl"))
 
-function julia_main()::Cint
+function @main(args::Vector{String})::Cint
     return App.clearswi()
 end

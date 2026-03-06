@@ -7,13 +7,14 @@ function compile(path="compiled";
     apppath = joinpath(dirname(@__DIR__), "App")
 
     julia_bin = joinpath(Sys.BINDIR, "julia" * (Sys.iswindows() ? ".exe" : ""))
-    juliac_script = normpath(joinpath(Sys.BINDIR, "..", "share", "julia", "juliac.jl"))
+    juliac_script = normpath(joinpath(Sys.BINDIR, "..", "share", "julia", "juliac", "juliac.jl"))
 
     for app in apps
         entry = joinpath(apppath, "entries", "$app.jl")
         outname = app * (Sys.iswindows() ? ".exe" : "")
         outfile = joinpath(outpath, "bin", outname)
-        run(`$julia_bin --startup-file=no $juliac_script --output-exe $outfile --project $apppath $entry`)
+        # --project must be a julia flag (juliac uses Base.active_project() internally)
+        run(`$julia_bin --startup-file=no --project=$apppath $juliac_script --output-exe $outfile $entry`)
     end
 
     for app in apps
