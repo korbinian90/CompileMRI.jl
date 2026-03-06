@@ -1,13 +1,20 @@
 function compile(path="compiled";
         apps = ["romeo", "clearswi", "mcpc3ds", "makehomogeneous", "romeo_mask"],
-        filter_stdlibs=true,
-        precompile_execution_file=abspath(joinpath(@__DIR__, "..", "test", "clearswi_test.jl")),
-        include_transitive_dependencies=false,
         kw...)
 
+    outpath = abspath(path)
+    mkpath(joinpath(outpath, "bin"))
     apppath = joinpath(dirname(@__DIR__), "App")
-    executables=[c=>c for c in apps]
-    create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, include_transitive_dependencies, kw...)
+
+    julia_bin = joinpath(Sys.BINDIR, "julia" * (Sys.iswindows() ? ".exe" : ""))
+    juliac_script = normpath(joinpath(Sys.BINDIR, "..", "share", "julia", "juliac.jl"))
+
+    for app in apps
+        entry = joinpath(apppath, "entries", "$app.jl")
+        outname = app * (Sys.iswindows() ? ".exe" : "")
+        outfile = joinpath(outpath, "bin", outname)
+        run(`$julia_bin --startup-file=no $juliac_script --output-exe $outfile --project $apppath $entry`)
+    end
 
     for app in apps
         test(path, app)

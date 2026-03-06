@@ -1,6 +1,6 @@
 module CompileMRI
 
-    using Pkg, PackageCompiler
+    using Pkg
 
     include("utility.jl")
     include("compile.jl")
