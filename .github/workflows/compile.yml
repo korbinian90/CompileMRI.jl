@@ -23,12 +23,12 @@ jobs:
         arch:
           - 'x64'
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # latest
       - name: Compile
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
       - name: Get Version
@@ -48,7 +48,7 @@ jobs:
           echo "ZIP_TYPE=zip" >> $env:GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload release
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
