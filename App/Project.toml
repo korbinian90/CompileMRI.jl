@@ -12,8 +12,8 @@ ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
 
 [compat]
 ArgParse = "1"
-CLEARSWI = "=1.6.1"
-MriResearchTools = "=3.3.3"
+CLEARSWI = "=1.6.2"
+MriResearchTools = "=3.6.0"
 QuantitativeSusceptibilityMappingTGV = "0.5.0"
-ROMEO = "=1.3.3"
+ROMEO = "=1.4.0"
 julia = "1.10"
