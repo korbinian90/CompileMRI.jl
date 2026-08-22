@@ -28,10 +28,13 @@ function getargs(args::AbstractVector, version)
     if isempty(args)
         args = ["--help"]
     else
-        if !('-' in args[1])
+        # startswith, not `'-' in`: a hyphen anywhere in the filename used to
+        # make this look like a flag, so BIDS names were rejected as stray
+        # positionals. Same fix as ROMEO.jl's getargs.
+        if !startswith(args[1], '-')
             prepend!(args, Ref("-p"))
         end # if phase is first without -p
-        if length(args) >= 2 && !("-p" in args || "--phase" in args) && !('-' in args[end-1]) # if phase is last without -p
+        if length(args) >= 2 && !("-p" in args || "--phase" in args) && !startswith(args[end-1], '-') # if phase is last without -p
             insert!(args, length(args), "-p")
         end
     end
