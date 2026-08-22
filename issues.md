@@ -48,6 +48,25 @@ machine could differ by a full 2pi between identical runs. This release is that
 fix reaching users. Order: ROMEO 1.5.0, MriResearchTools 3.6.0, CLEARSWI 1.6.2,
 then here.
 
+### K2b. Salvage from the closed compilation PRs (#7, #8)
+
+Both are closed as stale (they were near-duplicates of each other), but the
+content is worth keeping:
+
+- `sysimage_build_args = ` `--strip-ir` for a smaller sysimage. **Do not add
+  `--strip-metadata` alongside it**: PackageCompiler filters `--strip-ir` out of
+  the base sysimage build step but not `--strip-metadata`, which segfaults on
+  Julia 1.12.
+- `include_lazy_artifacts=false`.
+- `cpu_target`: leave it at PackageCompiler's default
+  (`generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1)` on x86_64),
+  which already covers Sandy Bridge and later and avoids AVX-512 on old CPUs.
+- Moving the compile toolchain to Julia 1.12 / PackageCompiler 2.2.
+
+Weigh this against X6 before spending time on it: `juliac --trim=safe` measured
+2.29 MB and 39 ms on the ROMEO kernel here, against the 160 MB bundle. Stripping
+IR makes the bundle smaller; it does not change its class.
+
 ### K3. 14.5k lines of vendored third-party MATLAB
 Unreviewed here. Worth deciding whether it still needs to ship, and if it does,
 whether its provenance and licence are recorded.
