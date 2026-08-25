@@ -2,6 +2,10 @@ name: Compile
 on:
   release:
     types: [published]
+  # Lets the whole matrix be built and smoke-tested without publishing a
+  # release. Until this existed, compile.yml only ever ran on `release:
+  # published`, so a broken build was discovered by the release itself.
+  workflow_dispatch:
 permissions:
   contents: write   # required to attach the built binaries to the release
 jobs:
@@ -11,19 +15,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-22.04
-          - ubuntu-24.04
-          - macOS-13
-          - macOS-14
-          - macOS-15
-          - windows-2019
-          - windows-2022
-          - windows-2025
-        version:
-          - '1.10'
-        arch:
-          - 'x64'
+        # Every runner builds natively. PackageCompiler bakes a sysimage for the
+        # host, so it cannot cross-compile: an arm64 binary needs an arm64 host.
+        # macOS therefore appears twice, once per architecture.
+        #
+        # macos-14/15 are Apple Silicon. They previously ran with arch: x64,
+        # which produced x86_64 binaries that Apple Silicon Macs could only run
+        # through Rosetta 2 - `file` on the shipped v4.7.1 macOS-14 asset
+        # reports "Mach-O 64-bit x86_64". setup-julia now refuses x64 on an
+        # aarch64 macOS runner outright, so that combination no longer builds
+        # at all.
+        #
+        # Dropped because the runner images no longer exist: macos-13 (use
+        # macos-15-intel for x86_64 macOS) and windows-2019.
+        include:
+          - {os: ubuntu-22.04,   arch: x64,     version: '1.10'}
+          - {os: ubuntu-24.04,   arch: x64,     version: '1.10'}
+          - {os: macos-15-intel, arch: x64,     version: '1.10'}
+          - {os: macos-14,       arch: aarch64, version: '1.10'}
+          - {os: macos-15,       arch: aarch64, version: '1.10'}
+          - {os: windows-2022,   arch: x64,     version: '1.10'}
+          - {os: windows-2025,   arch: x64,     version: '1.10'}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
@@ -42,15 +54,22 @@ jobs:
         run: |
           echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
           echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
-          mv compiled mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}
-          tar -vczf mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}
+          mv compiled mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}
+          tar -vczf mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
           echo "ZIP_ENDING=zip" >> $env:GITHUB_ENV
           echo "ZIP_TYPE=zip" >> $env:GITHUB_ENV
-          Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.zip'
+          Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload release
+        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          files: mritools_${{ matrix.os }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          files: mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+      - name: Upload artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}
+          path: mritools_${{ matrix.os }}_${{ matrix.arch }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
