@@ -51,13 +51,14 @@ function version()
 end
 
 function mritools_version()
-    version_file = joinpath(get_apppath(), "src", "App.jl")
-    for line in eachline(version_file)
-        if startswith(line, "const version = ")
-            return split(line, "\"")[2]
-        end
-    end
-    return "Unknown Version"
+    # Same single source of truth as App.jl: App/Project.toml. This used to
+    # grep App.jl for the literal line `const version = "..."`, which meant a
+    # reformat of that line silently produced "Unknown Version" and named the
+    # release archives after it, space and all.
+    toml = joinpath(get_apppath(), "Project.toml")
+    m = match(r"^version\s*=\s*\"([^\"]+)\""m, read(toml, String))
+    m === nothing && error("no version field in $toml")
+    return String(m.captures[1])
 end
 
 function test()
