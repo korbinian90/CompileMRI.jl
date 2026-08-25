@@ -2,7 +2,7 @@ using CLEARSWI, ArgParse
 import Pkg
 Pkg.test("CLEARSWI")
 
-p = joinpath("..", "..", "test", "data", "small")
+p = abspath(joinpath(@__DIR__, "..", "..", "test", "data", "small"))
 phasefile = joinpath(p, "Phase.nii")
 magfile = joinpath(p, "Mag.nii") 
 

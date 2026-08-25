@@ -2,7 +2,7 @@ using ROMEO, ArgParse
 import Pkg
 Pkg.test("ROMEO")
 
-p = joinpath("..", "..", "test", "data", "small")
+p = abspath(joinpath(@__DIR__, "..", "..", "test", "data", "small"))
 phasefile = joinpath(p, "Phase.nii")
 magfile = joinpath(p, "Mag.nii")
 
