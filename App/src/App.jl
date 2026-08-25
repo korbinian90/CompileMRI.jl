@@ -13,7 +13,22 @@ import .Mcpc3dsApp: mcpc3ds_main
 import .HomogeneityCorrection: makehomogeneous_main
 import .RomeoMasking: romeo_mask_main
 
-const version = "4.7.1" # Only change with search-all
+# App/Project.toml is the single source of truth for the version. Read here at
+# precompile time so the value is baked into the sysimage: the compiled app has
+# no Project.toml beside it to read at run time. Erroring is deliberate - a
+# missing version should stop the build, not silently name the release after
+# nothing.
+const version = let
+    toml = joinpath(@__DIR__, "..", "Project.toml")
+    # Without this the value is baked at precompile time and a version bump in
+    # Project.toml does not invalidate the cache, so a stale version would be
+    # compiled into the app. Verified: editing Project.toml alone left
+    # App.version at the old number until this was added.
+    include_dependency(toml)
+    m = match(r"^version\s*=\s*\"([^\"]+)\""m, read(toml, String))
+    m === nothing && error("no version field in $toml")
+    String(m.captures[1])
+end
 
 function romeo()::Cint
     try
