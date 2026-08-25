@@ -53,10 +53,37 @@ then here.
 Both are closed as stale (they were near-duplicates of each other), but the
 content is worth keeping:
 
-- `sysimage_build_args = ` `--strip-ir` for a smaller sysimage. **Do not add
-  `--strip-metadata` alongside it**: PackageCompiler filters `--strip-ir` out of
-  the base sysimage build step but not `--strip-metadata`, which segfaults on
-  Julia 1.12.
+- ~~`sysimage_build_args = ` `--strip-ir` for a smaller sysimage.~~
+  **MEASURED AND REJECTED.** It does shrink the bundle, substantially - but
+  every binary it produces is silently broken. Built with Julia 1.11.5, same
+  code and machine as the passing baseline:
+
+  | | baseline | `--strip-ir` |
+  |---|---|---|
+  | bundle | 811 MB | 581 MB (-28%) |
+  | binaries produced | 5 | 5 |
+  | **binaries that work** | **5** | **0** |
+
+  All five exit 1, write no output files and emit a single byte of
+  diagnostics. The one byte is the telling part: `App.jl` wraps each entry
+  point in `try ... catch; Base.invokelatest(Base.display_error,
+  Base.catch_stack()); return 1`, and stripping the IR breaks the error path
+  too, so the failure reports nothing at all. A user would see a tool that
+  exits non-zero, writes nothing, and explains nothing.
+
+  `compile()`'s own post-build smoke test caught this - it runs each binary
+  and asserts success. That is the argument for un-commenting
+  `test/compile_test.jl` in `runtests.jl`: this class of breakage is
+  invisible to the ordinary test suite and only appears when the compiled
+  artefact is executed.
+
+  **Do not add `--strip-metadata` either**: PackageCompiler filters
+  `--strip-ir` out of the base sysimage build step but not `--strip-metadata`,
+  which segfaults on Julia 1.12.
+
+  So both cheap stripping flags are dead ends here, which leaves `juliac
+  --trim` (X6) as the only real route to a smaller binary - and that needs the
+  X2/X6 refactors, not a build flag.
 - `include_lazy_artifacts=false`.
 - `cpu_target`: leave it at PackageCompiler's default
   (`generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1)` on x86_64),
