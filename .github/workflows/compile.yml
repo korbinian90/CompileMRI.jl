@@ -6,6 +6,11 @@ on:
   # release. Until this existed, compile.yml only ever ran on `release:
   # published`, so a broken build was discovered by the release itself.
   workflow_dispatch:
+    inputs:
+      julia_version:
+        description: 'Julia version to build with. Only affects manual runs - a published release always builds with the default.'
+        required: false
+        default: '1.10'
 permissions:
   contents: write   # required to attach the built binaries to the release
 jobs:
@@ -58,10 +63,10 @@ jobs:
         # which would exclude exactly the old images that make this worthwhile.
         # Running only the compile in the container avoids that.
         include:
-          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   version: '1.10', container: 'quay.io/pypa/manylinux2014_x86_64'}
-          - {os: windows-2025,   arch: x64,     label: windows_x64, version: '1.10', container: ''}
-          - {os: macos-15-intel, arch: x64,     label: macos_x64,   version: '1.10', container: ''}
-          - {os: macos-14,       arch: aarch64, label: macos_arm64, version: '1.10', container: ''}
+          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   version: "${{ inputs.julia_version || '1.10' }}", container: 'quay.io/pypa/manylinux2014_x86_64'}
+          - {os: windows-2025,   arch: x64,     label: windows_x64, version: "${{ inputs.julia_version || '1.10' }}", container: ''}
+          - {os: macos-15-intel, arch: x64,     label: macos_x64,   version: "${{ inputs.julia_version || '1.10' }}", container: ''}
+          - {os: macos-14,       arch: aarch64, label: macos_arm64, version: "${{ inputs.julia_version || '1.10' }}", container: ''}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
@@ -134,8 +139,12 @@ jobs:
         with:
           files: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
       - name: Upload artifact
+        # The Julia version is in the artifact name, not the archive name: a
+        # manual run exists to compare toolchains, and two runs on different
+        # Julia versions would otherwise produce identically named bundles.
+        # Release assets are unaffected - this step is dispatch-only.
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
-          name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
+          name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}_julia${{ matrix.version }}
           path: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
