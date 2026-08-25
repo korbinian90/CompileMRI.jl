@@ -4,7 +4,7 @@ using MriResearchTools
 # niread = Mcpc3dsApp.niread
 # savenii = Mcpc3dsApp.savenii
 
-p = joinpath("..", "..", "test", "data", "small")
+p = abspath(joinpath(@__DIR__, "..", "..", "test", "data", "small"))
 phasefile_me = joinpath(p, "Phase.nii")
 magfile_me = joinpath(p, "Mag.nii")
 tmpdir = mktempdir()

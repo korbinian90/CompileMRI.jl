@@ -97,36 +97,11 @@ end
 
 function saveconfiguration(writedir, settings, args, version)
     writedir = abspath(writedir)
-    open(joinpath(writedir, "settings_makehomogeneous.txt"), "w") do io
-        for (fname, val) in settings
-            if !(typeof(val) <: AbstractArray)
-                println(io, "$fname: " * string(val))
-            end
-        end
-        println(io, """Arguments: $(join(args, " "))""")
-        println(io, "MakeHomogeneous version: $version")
-    end
-    open(joinpath(writedir, "citations_makehomogeneous.txt"), "w") do io
-        println(io, "# If you use this software, please cite:")
-        println(io)
-        println(io, """Eckstein, K., Bachrata, B., Hangel, G., Widhalm, G., Enzinger, C., Barth, M., Trattnig, S., Robinson, S.D., 2021.
-                    Improved susceptibility weighted imaging at ultra-high field using bipolar multi-echo acquisition and optimized image processing: CLEAR-SWI.
-                    NeuroImage 237, 118175
-                    https://doi.org/10.1016/j.neuroimage.2021.118175""")
-        println(io)
-        println(io, """Eckstein, K., Trattnig, S., Robinson, S.D., 2019.
-                    A Simple Homogeneity Correction for Neuroimaging at 7T
-                    Proceedings of the 27th Annual Meeting ISMRM. Presented at the ISMRM, Montréal, Québec, Canada.
-                    https://index.mirasmart.com/ISMRM2019/PDFfiles/2716.html""")
-        println(io)
-        
-        println(io)
-        println(io, "# Optional citations:")
-        println(io)
-        println(io, """Bezanson, J., Edelman, A., Karpinski, S., Shah, V.B., 2017.
-                    Julia: A fresh approach to numerical computing
-                    SIAM Review 59, 65--98
-                    https://doi.org/10.1137/141000671""")
-    end
+    write_provenance(writedir, "makehomogeneous";
+        version, args, settings, cite = [:homogeneity, :clearswi],
+        optional = [:julia],
+        inputs = ["magnitude" => get(settings, "magnitude", nothing)],
+        packages = [MriResearchTools],
+    )
 end
 end

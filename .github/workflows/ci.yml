@@ -2,6 +2,8 @@ name: CI
 on:
   - push
   - pull_request
+permissions:
+  contents: read
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -10,28 +12,30 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - 'pre'
+          # 'min' tracks the julia lower bound in Project.toml instead of
+          # restating it, so the two cannot drift apart. It resolves to 1.10
+          # today, which is also what compile.yml builds the released binaries
+          # with; 'lts' and '1' catch upstream breakage early.
+          - 'min'
+          - 'lts'
+          - '1'
         os:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
         arch:
-          - x64
+          # 'default', not 'x64': macos-latest is Apple Silicon, and
+          # julia-actions/setup-julia v3 errors on an explicit x64 request there
+          # rather than quietly using an x64 build as v2 did. 'default' gives x64
+          # on ubuntu and windows and aarch64 on macOS, which is what macOS users
+          # actually run.
+          - default
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: actions/cache@v4
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@latest
-      - uses: julia-actions/julia-runtest@latest
+      - uses: julia-actions/cache@d10a6fd8f31b12404a54613ebad242900567f2b9 # v2
+      - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
+      - uses: julia-actions/julia-runtest@d60b785c6f2bdf4ebfb18b2b6f7d93b7dfb0efe3 # v1

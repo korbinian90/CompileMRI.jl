@@ -43,6 +43,27 @@
    julia> compile("/tmp/compiled"; force=true)
    ```
 
+## Which library versions a release contains
+
+The compiled `mritools` bundle is a snapshot, not a rolling build. `App/Project.toml`
+pins the libraries with exact (`=`) version bounds, so the binaries contain those
+versions and nothing newer, whatever has been released in the meantime:
+
+| Library | Pinned in `App/Project.toml` |
+|---|---|
+| `MriResearchTools` | `= 3.3.3` |
+| `ROMEO` | `= 1.3.3` |
+| `CLEARSWI` | `= 1.6.1` |
+| `QuantitativeSusceptibilityMappingTGV` | `0.5.0` (range) |
+
+Exact pins are the right thing for a reproducible binary, but nothing currently
+moves them: a release of `MriResearchTools`, `ROMEO` or `CLEARSWI` produces no
+signal here, so the pins only advance when someone remembers. **They are behind at
+the time of writing** - `MriResearchTools` is at 3.5.0 and `ROMEO` at 1.4.0 - which
+means the shipped `romeo` is not the ROMEO in `ROMEO.jl@master`. Bump the pins here
+and re-release when picking up upstream fixes, and check this table before reporting
+a binary bug upstream.
+
 ### Update to newest version
 
 Since I'm using unregistered packages in dev mode, it is tricky to get updates to packages.
