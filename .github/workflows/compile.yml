@@ -42,11 +42,26 @@ jobs:
         #   which is billed even on public repositories. macos-15-intel is the
         #   oldest free Intel runner, so Intel Macs on macOS 13/14 cannot be
         #   served at all.
+        #
+        # The Linux entry builds inside an old-glibc container. The bundle's
+        # glibc floor comes from whatever links it, not from Julia: Julia's own
+        # libraries need at most GLIBC_2.17, while the v4.7.1 ubuntu-22.04 asset
+        # required 2.34 and the ubuntu-24.04 one 2.38. 2.34 is not arbitrary -
+        # glibc 2.34 merged libpthread/libdl/librt into libc and re-versioned
+        # those symbols, so anything linked against glibc >= 2.34 inherits it,
+        # and a program doing nothing but pthread_create + dlopen already does.
+        # ubuntu-20.04 is retired and ubuntu-22.04 (2.35) is the oldest runner,
+        # so the runner cannot go lower - the container can.
+        #
+        # docker run, not `container:` on the job: GitHub's JavaScript actions
+        # need node inside the container and node 20/24 wants glibc >= 2.28,
+        # which would exclude exactly the old images that make this worthwhile.
+        # Running only the compile in the container avoids that.
         include:
-          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   version: '1.10'}
-          - {os: windows-2025,   arch: x64,     label: windows_x64, version: '1.10'}
-          - {os: macos-15-intel, arch: x64,     label: macos_x64,   version: '1.10'}
-          - {os: macos-14,       arch: aarch64, label: macos_arm64, version: '1.10'}
+          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   version: '1.10', container: 'quay.io/pypa/manylinux2014_x86_64'}
+          - {os: windows-2025,   arch: x64,     label: windows_x64, version: '1.10', container: ''}
+          - {os: macos-15-intel, arch: x64,     label: macos_x64,   version: '1.10', container: ''}
+          - {os: macos-14,       arch: aarch64, label: macos_arm64, version: '1.10', container: ''}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9 # v2
@@ -55,7 +70,33 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
       - name: Compile
+        if: ${{ matrix.container == '' }}
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
+
+      - name: Compile in ${{ matrix.container }}
+        if: ${{ matrix.container != '' }}
+        run: |
+          docker run --rm -v "$PWD":/work -w /work \
+            -e JULIA_NUM_THREADS=2 \
+            '${{ matrix.container }}' bash -euo pipefail -c '
+              curl -fsSL "https://julialang-s3.julialang.org/bin/linux/x64/${{ matrix.version }}/julia-${{ matrix.version }}-latest-linux-x86_64.tar.gz" -o /tmp/julia.tar.gz
+              mkdir -p /opt/julia
+              tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1
+              export PATH=/opt/julia/bin:$PATH
+              julia --version
+              julia --color=yes --project=. -e "using Pkg; Pkg.instantiate(); using CompileMRI; compile()"
+            '
+          sudo chown -R "$(id -u):$(id -g)" compiled
+
+      - name: Report the glibc floor
+        if: ${{ matrix.container != '' }}
+        run: |
+          max=$(find compiled -type f \( -name '*.so*' -o -perm -u+x \) \
+                  -exec sh -c 'objdump -T "$1" 2>/dev/null | grep -oE "GLIBC_[0-9.]+"' _ {} \; \
+                | sort -uV | tail -1)
+          echo "max GLIBC required across the bundle: ${max:-none}"
+          echo "**Linux glibc floor:** \`${max:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Get Version
         id: version
         shell: bash
