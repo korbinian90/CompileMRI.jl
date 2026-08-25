@@ -12,9 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          # '1.10' is what compile.yml builds the released binaries with, so it
-          # has to be covered here; 'lts' and '1' catch upstream breakage early.
-          - '1.10'
+          # 'min' tracks the julia lower bound in Project.toml instead of
+          # restating it, so the two cannot drift apart. It resolves to 1.10
+          # today, which is also what compile.yml builds the released binaries
+          # with; 'lts' and '1' catch upstream breakage early.
+          - 'min'
           - 'lts'
           - '1'
         os:
