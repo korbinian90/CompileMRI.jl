@@ -1,7 +1,7 @@
 # CompileMRI.jl - issue list
 
 Working notes from the architecture review of 2026-08-19..21. Uncommitted on
-purpose. Cross-repository items and release ordering are in `issues-stack.md`
+purpose. Cross-repository items and release ordering are in `/home/user/issues.md`
 (X0..X7). Full evidence:
 https://claude.ai/code/artifact/1dcb7a4a-4523-46fc-af23-7c5b0ecc3688
 
@@ -88,3 +88,62 @@ byte-identical (same md5) in all five CLI tools.
 ### K7. Five `invokelatest` calls in `App.jl`
 Three lines each. Irrelevant today; a blocker for X6 if static compilation is
 ever picked up.
+
+### K8. Lower the Linux glibc floor with a container build - the widest-reach item left
+
+The released Linux bundle refuses to start on anything older than **glibc
+2.34**, which excludes CentOS 7 (2.17) and RHEL 8 / Debian 10 (2.28) - a large
+share of the academic cluster nodes this audience actually runs on.
+
+Measured on the shipped v4.7.1 assets, max GLIBC symbol version across all 47
+bundled libraries:
+
+| bundle | floor |
+|---|---|
+| `mritools_ubuntu-22.04_4.7.1` | GLIBC_2.34 |
+| `mritools_ubuntu-24.04_4.7.1` | GLIBC_2.38 |
+
+**The floor comes from the runner, not from Julia.** Julia's own shipped
+libraries need at most GLIBC_2.17, and that is true for 1.9, 1.11 and 1.12
+alike, so upgrading Julia neither helps nor hurts here:
+
+    julia-1.9.0    max across all shipped libs = GLIBC_2.12
+    julia-1.11.5   max across all shipped libs = GLIBC_2.17
+    julia-1.12.7   max across all shipped libs = GLIBC_2.17
+
+The 2.34 comes from the parts PackageCompiler links locally with the runner's
+toolchain. glibc 2.34 merged libpthread/libdl/librt into libc and re-versioned
+those symbols, so *any* binary linked on a host with glibc >= 2.34 inherits it.
+Demonstrated with a program that does nothing but `pthread_create` + `dlopen`,
+compiled on glibc 2.39:
+
+    GLIBC_2.2.5
+    GLIBC_2.4
+    GLIBC_2.34     <- from pthread/dlopen alone
+
+**`juliac` does not help.** `--trim` removes Julia code from the image; it does
+not remove the runtime's libc dependency. libjulia still calls `pthread_create`
+and `dlopen`, so a juliac binary linked on ubuntu-22.04 hits the same wall. It
+is a size lever (2.29 MB vs 160 MB, see X6), not a portability one.
+
+**What does work: link on an older host.** ubuntu-20.04 (glibc 2.31) is retired
+and ubuntu-22.04 (2.35) is the oldest runner available, so the runner cannot go
+lower - but the *container* can, on the same free `ubuntu-latest` runner, via
+`container:` on the job. Julia's 2.17 is the floor worth aiming at:
+
+| container | glibc | additionally reaches |
+|---|---|---|
+| `manylinux2014` (CentOS 7) | 2.17 | CentOS/RHEL 7 |
+| `manylinux_2_28` (AlmaLinux 8) | 2.28 | RHEL 8, Debian 10 |
+| `ubuntu:20.04` / `debian:11` | 2.31 | Ubuntu 20.04, Debian 11 |
+
+Unverified, and the reason this is a note rather than a change:
+`julia-actions/setup-julia` may not work inside a container job, so Julia would
+be installed with `curl` in a step; the image needs a working `cc` and binutils
+for PackageCompiler (the manylinux images have them); and the resulting floor
+must be *measured* with the same `objdump -T | grep GLIBC_` check rather than
+assumed. There is no Docker in the review container, so none of this could be
+tested here.
+
+Independent of the release chain - it changes only how the Linux asset is
+built, not what it contains.
