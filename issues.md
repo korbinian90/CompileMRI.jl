@@ -174,3 +174,54 @@ tested here.
 
 Independent of the release chain - it changes only how the Linux asset is
 built, not what it contains.
+
+### K9. Julia 1.12 is blocked by the LoopVectorization stack, not by Julia
+
+Tested properly rather than assumed, via `workflow_dispatch` with
+`julia_version: 1.12` (compile.yml run 117) against a 1.10 baseline (run 116).
+Both runs built the full four-platform matrix; the artifacts were downloaded and
+the binaries executed, not just inspected.
+
+**Two of four platforms fail to build.** Both are LLVM backend crashes in the
+non-incremental sysimage build, after the tests pass:
+
+    macos_arm64   LLVM ERROR: Cannot select: i64 = vscale Constant:i64<1>,
+                  HostCPUFeatures/src/cpu_info_aarch64.jl:5
+
+    windows_x64   LLVM ERROR: Cannot select: v4f32 = X86ISD::RCP14
+                  VectorizationBase/src/llvm_intrin/intrin_funcs.jl:1336
+
+Same shape in both: these packages emit CPU-specific intrinsics - `vscale` on
+aarch64, AVX-512's `RCP14` on x86 - that LLVM cannot select for the **non-native
+`--cpu-target`** PackageCompiler uses to build a portable sysimage. Native
+compilation would be fine; portable multiversioned compilation is not. Linux
+passed because its cpu-target differs.
+
+The dependency path, so it is clear this is ours to influence:
+
+    LoopVectorization  <- ImageMorphology 0.4.6
+    VectorizationBase  <- LoopVectorization, SLEEFPirates
+    HostCPUFeatures    <- VectorizationBase, LoopVectorization
+
+**And where 1.12 did build, it is worse:**
+
+| | Julia 1.10 | Julia 1.12 |
+|---|---|---|
+| glibc floor | 2.17 | 2.17 |
+| bundle unpacked | 694 MB | 960 MB (+38%) |
+| compressed | 179 MB | 257 MB (+44%) |
+| all five binaries work | yes | yes |
+| `romeo --help` | 1455 / 1000 / 1831 ms | 2084 / 2103 / 2602 ms |
+
+So there is nothing to gain today: bigger, slower to start, and broken on half
+the platforms.
+
+**Stay on 1.10** - now a measured decision rather than an inherited default. The
+follow-up is not "retry a newer Julia" but **get rid of the LoopVectorization
+dependency**, which arrives only through ImageMorphology and is effectively
+unmaintained for modern Julia. That same stack is also implicated in X6: its
+intrinsics and dynamic dispatch are part of what `juliac --trim` would have to
+resolve. One dependency blocks both.
+
+The `julia_version` dispatch input added for this test stays, so the question can
+be re-answered cheaply after any upstream change.
