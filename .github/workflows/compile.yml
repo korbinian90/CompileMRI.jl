@@ -6,12 +6,25 @@ on:
   # release. Until this existed, compile.yml only ever ran on `release:
   # published`, so a broken build was discovered by the release itself.
   workflow_dispatch:
+    inputs:
+      julia_version:
+        description: 'Julia version to build with. Only affects manual runs - a published release always builds with the default.'
+        required: false
+        default: '1.10'
 permissions:
   contents: write   # required to attach the built binaries to the release
 jobs:
   compile:
-    name: ${{ matrix.label }} - ${{ matrix.os }} - Julia ${{ matrix.version }} - ${{ github.event_name }}
+    name: ${{ matrix.label }} - ${{ matrix.os }} - Julia ${{ inputs.julia_version || '1.10' }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
+    env:
+      # The input default only applies to workflow_dispatch. On `release:
+      # published` there are no inputs, so `inputs.julia_version` is empty and
+      # this fallback is what actually supplies the version - without it a
+      # release would hand setup-julia an empty string. Defined once here
+      # rather than per matrix entry; `env` is not available in `strategy`,
+      # which is why the version is no longer a matrix key at all.
+      JULIA_VERSION: ${{ inputs.julia_version || '1.10' }}
     strategy:
       fail-fast: false
       matrix:
@@ -42,28 +55,70 @@ jobs:
         #   which is billed even on public repositories. macos-15-intel is the
         #   oldest free Intel runner, so Intel Macs on macOS 13/14 cannot be
         #   served at all.
+        #
+        # The Linux entry builds inside an old-glibc container. The bundle's
+        # glibc floor comes from whatever links it, not from Julia: Julia's own
+        # libraries need at most GLIBC_2.17, while the v4.7.1 ubuntu-22.04 asset
+        # required 2.34 and the ubuntu-24.04 one 2.38. 2.34 is not arbitrary -
+        # glibc 2.34 merged libpthread/libdl/librt into libc and re-versioned
+        # those symbols, so anything linked against glibc >= 2.34 inherits it,
+        # and a program doing nothing but pthread_create + dlopen already does.
+        # ubuntu-20.04 is retired and ubuntu-22.04 (2.35) is the oldest runner,
+        # so the runner cannot go lower - the container can.
+        #
+        # docker run, not `container:` on the job: GitHub's JavaScript actions
+        # need node inside the container and node 20/24 wants glibc >= 2.28,
+        # which would exclude exactly the old images that make this worthwhile.
+        # Running only the compile in the container avoids that.
         include:
-          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   version: '1.10'}
-          - {os: windows-2025,   arch: x64,     label: windows_x64, version: '1.10'}
-          - {os: macos-15-intel, arch: x64,     label: macos_x64,   version: '1.10'}
-          - {os: macos-14,       arch: aarch64, label: macos_arm64, version: '1.10'}
+          - {os: ubuntu-22.04,   arch: x64,     label: linux_x64,   container: 'quay.io/pypa/manylinux2014_x86_64'}
+          - {os: windows-2025,   arch: x64,     label: windows_x64, container: ''}
+          - {os: macos-15-intel, arch: x64,     label: macos_x64,   container: ''}
+          - {os: macos-14,       arch: aarch64, label: macos_arm64, container: ''}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
         with:
-          version: ${{ matrix.version }}
+          version: ${{ env.JULIA_VERSION }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
       - name: Compile
+        if: ${{ matrix.container == '' }}
         run: julia --color=yes --project=@. -e 'using CompileMRI; compile()'
+
+      - name: Compile in ${{ matrix.container }}
+        if: ${{ matrix.container != '' }}
+        run: |
+          docker run --rm -v "$PWD":/work -w /work \
+            -e JULIA_NUM_THREADS=2 \
+            '${{ matrix.container }}' bash -euo pipefail -c '
+              curl -fsSL "https://julialang-s3.julialang.org/bin/linux/x64/${{ env.JULIA_VERSION }}/julia-${{ env.JULIA_VERSION }}-latest-linux-x86_64.tar.gz" -o /tmp/julia.tar.gz
+              mkdir -p /opt/julia
+              tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1
+              export PATH=/opt/julia/bin:$PATH
+              julia --version
+              julia --color=yes --project=. -e "using Pkg; Pkg.instantiate(); using CompileMRI; compile()"
+            '
+          sudo chown -R "$(id -u):$(id -g)" compiled
+
+      - name: Report the glibc floor
+        if: ${{ matrix.container != '' }}
+        run: |
+          max=$(find compiled -type f \( -name '*.so*' -o -perm -u+x \) \
+                  -exec sh -c 'objdump -T "$1" 2>/dev/null | grep -oE "GLIBC_[0-9.]+"' _ {} \; \
+                | sort -uV | tail -1)
+          echo "max GLIBC required across the bundle: ${max:-none}"
+          echo "**Linux glibc floor:** \`${max:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Get Version
         id: version
         shell: bash
         run: echo "version=$(julia --project=@. -e 'using CompileMRI; println(CompileMRI.mritools_version())')" >> "$GITHUB_OUTPUT"
       - name: Check the release tag matches the App version
         # The archive names come from App/Project.toml via mritools_version().
-        # Tagging v4.8.0 while Project.toml still says 4.7.1 would publish a
-        # v4.8.0 release whose assets are all named 4.7.1, silently.
+        # Tagging a version that Project.toml has not been bumped to would
+        # publish a release whose assets are all named after the old version,
+        # silently.
         if: ${{ github.event_name == 'release' }}
         shell: bash
         run: |
@@ -93,8 +148,12 @@ jobs:
         with:
           files: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
       - name: Upload artifact
+        # The Julia version is in the artifact name, not the archive name: a
+        # manual run exists to compare toolchains, and two runs on different
+        # Julia versions would otherwise produce identically named bundles.
+        # Release assets are unaffected - this step is dispatch-only.
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
+          name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}_julia${{ env.JULIA_VERSION }}
           path: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
