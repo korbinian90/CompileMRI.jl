@@ -108,8 +108,9 @@ jobs:
         run: echo "version=$(julia --project=@. -e 'using CompileMRI; println(CompileMRI.mritools_version())')" >> "$GITHUB_OUTPUT"
       - name: Check the release tag matches the App version
         # The archive names come from App/Project.toml via mritools_version().
-        # Tagging v4.8.0 while Project.toml still says 4.7.1 would publish a
-        # v4.8.0 release whose assets are all named 4.7.1, silently.
+        # Tagging a version that Project.toml has not been bumped to would
+        # publish a release whose assets are all named after the old version,
+        # silently.
         if: ${{ github.event_name == 'release' }}
         shell: bash
         run: |
