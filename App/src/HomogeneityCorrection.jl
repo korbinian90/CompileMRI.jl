@@ -29,9 +29,8 @@ function getargs(args::AbstractVector, version)
         default = 15
         arg_type = Int
         "--datatype", "-d"
-        help = """The datatype of the output image. Defaults to input type.
-            It might be required to change this to a float output type for integer input types.
-            e.g. `Float32`"""
+        help = """The datatype of the output image. Defaults to Float32.
+            e.g. `Float64` or `UInt8`"""
         arg_type = DataType
         "--verbose", "-v"
         help = "verbose output messages"
@@ -75,9 +74,9 @@ function makehomogeneous_main(args; version="1.0")
 
     # --datatype was parsed and then never applied, so the option did nothing and
     # the record said `datatype: nothing` either way. Keep the value, and put the
-    # default into the record in words rather than leaving it blank.
+    # default into the record rather than leaving it blank.
     datatype = settings["datatype"]
-    settings["datatype"] = isnothing(datatype) ? "same as input" : datatype
+    settings["datatype"] = isnothing(datatype) ? "Float32 (default)" : datatype
 
     mkpath(writedir)
     saveconfiguration(writedir, settings, args, version)
@@ -88,9 +87,14 @@ function makehomogeneous_main(args; version="1.0")
     settings["verbose"] && size(mag_nii, 4) > 1 && println("Multi-echo data detected. Using the first echo for sensitivity estimation.")
 
     mag = makehomogeneous(mag_nii; sigma_mm=settings["sigma-bias-field"], nbox=settings["nbox"])
-    isnothing(datatype) || (mag = datatype.(mag))
 
-    savenii(mag, filename, writedir, hdr)
+    # savenii writes Float32 unless told otherwise, so an unset --datatype needs
+    # no special case here.
+    if isnothing(datatype)
+        savenii(mag, filename, writedir, hdr)
+    else
+        savenii(mag, filename, writedir, hdr; datatype)
+    end
 end
 
 function exception_handler(settings::ArgParseSettings, err, err_code::Int=1)
