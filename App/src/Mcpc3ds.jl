@@ -139,10 +139,13 @@ end
 
 function saveconfiguration(writedir, settings, args, version)
     writedir = abspath(writedir)
-    # MCPC-3D-S is the method this tool exists to run, so it is always cited -
-    # together with its patent notice.
+    # MCPC-3D-S is the method this tool exists to run, so it is always cited.
+    # Not ASPIRE: the two were published together and share a reference, but
+    # only ASPIRE is patented, and mcpc3ds never runs it - it unwraps the HIP
+    # with ROMEO on every path rather than taking the TE2 = n*TE1 shortcut that
+    # skips unwrapping.
     write_provenance(writedir, "mcpc3ds";
-        version, args, settings, cite = [:aspire],
+        version, args, settings, cite = [:mcpc3ds],
         optional = [:romeo, :julia],
         inputs = ["phase" => get(settings, "phase", nothing), "magnitude" => get(settings, "magnitude", nothing)],
         packages = [MriResearchTools, MriResearchTools.ROMEO],
