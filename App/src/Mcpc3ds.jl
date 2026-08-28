@@ -77,10 +77,14 @@ function mcpc3ds_main(args; version="1.0")
         settings["no-mmap"] = true
     end
 
-    sigma = [10,10,5]
-    if !isempty(settings["smoothing-sigma"])
-        sigma = parse_array(settings["smoothing-sigma"])
+    sigma = if isempty(settings["smoothing-sigma"])
+        [10, 10, 5]
+    else
+        parse_array(settings["smoothing-sigma"])
     end
+    # Record what was used, not the empty option: a default that only exists in
+    # the source is a default the record cannot report.
+    settings["smoothing-sigma"] = sigma
 
     mkpath(writedir)
     saveconfiguration(writedir, settings, args, version)
@@ -129,13 +133,9 @@ function getTEs(settings)
     return TEs
 end
 
-function parse_array(str)
-    arr = eval(Meta.parse(join(str, " ")))
-    if arr isa Matrix
-        arr = arr[:]
-    end
-    return arr
-end
+# One parser for the whole family, in ROMEO where it has no dependencies. The
+# local copy used to eval whatever the user typed.
+const parse_array = MriResearchTools.ROMEO.parse_array
 
 function saveconfiguration(writedir, settings, args, version)
     writedir = abspath(writedir)
@@ -149,6 +149,7 @@ function saveconfiguration(writedir, settings, args, version)
         optional = [:romeo, :julia],
         inputs = ["phase" => get(settings, "phase", nothing), "magnitude" => get(settings, "magnitude", nothing)],
         packages = [MriResearchTools, MriResearchTools.ROMEO],
+        describe = describe_input,
     )
 end
 end

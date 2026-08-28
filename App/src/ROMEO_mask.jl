@@ -107,11 +107,9 @@ function exception_handler(settings::ArgParseSettings, err, err_code::Int=1)
 end
 
 function getechoes(settings, neco)
-    echoes = eval(Meta.parse(join(settings["unwrap-echoes"], " ")))
+    echoes = MriResearchTools.ROMEO.parse_array(settings["unwrap-echoes"])
     if echoes isa Int
         echoes = [echoes]
-    elseif echoes isa Matrix
-        echoes = echoes[:]
     end
     echoes = (1:neco)[echoes] # expands ":"
     if (length(echoes) == 1)
@@ -135,10 +133,7 @@ function getTEs(settings, neco, echoes)
             1
         end
     else
-        eval(Meta.parse(join(settings["echo-times"], " ")))
-    end
-    if TEs isa AbstractMatrix
-        TEs = TEs[:]
+        MriResearchTools.ROMEO.parse_array(settings["echo-times"])
     end
     if 1 < length(TEs) == neco
         TEs = TEs[echoes]
@@ -150,26 +145,24 @@ function parseweights(settings)
     if isfile(settings["weights"]) && splitext(settings["weights"])[2] != ""
         return UInt8.(niread(settings["weights"]))
     else
-        try
-            reform = "Bool[$(join(collect(settings["weights"]), ','))]"
-            flags = falses(6)
-            flags_tmp = eval(Meta.parse(reform))
-            flags[1:length(flags_tmp)] = flags_tmp
-            return flags
-        catch
-            return Symbol(settings["weights"])
-        end
+        flags = MriResearchTools.ROMEO.parse_weight_flags(settings["weights"])
+        return flags === nothing ? Symbol(settings["weights"]) : flags
     end
 end
 
 function saveconfiguration(writedir, settings, args, version)
     writedir = abspath(writedir)
+    # "neco" is the internal name for the echo count; the record is read by
+    # people, so it goes in under the name the help text uses.
+    settings = copy(settings)
+    haskey(settings, "neco") && (settings["number-of-echoes"] = pop!(settings, "neco"))
     # The mask is a threshold on the ROMEO voxel quality map.
     write_provenance(writedir, "romeo_mask";
         version, args, settings, cite = [:romeo],
         optional = [:phase_based_masking, :qsmxt, :julia],
         inputs = ["phase" => get(settings, "phase", nothing), "magnitude" => get(settings, "magnitude", nothing)],
         packages = [MriResearchTools, MriResearchTools.ROMEO],
+        describe = describe_input,
     )
 end
 function load_data_and_resolve_args!(settings)
