@@ -29,9 +29,8 @@ function getargs(args::AbstractVector, version)
         default = 15
         arg_type = Int
         "--datatype", "-d"
-        help = """The datatype of the output image. Defaults to input type.
-            It might be required to change this to a float output type for integer input types.
-            e.g. `Float32`"""
+        help = """The datatype of the output image. Defaults to Float32.
+            e.g. `Float64` or `UInt8`"""
         arg_type = DataType
         "--verbose", "-v"
         help = "verbose output messages"
@@ -73,6 +72,9 @@ function makehomogeneous_main(args; version="1.0")
         writedir = dirname(writedir)
     end
 
+    datatype = settings["datatype"]
+    settings["datatype"] = isnothing(datatype) ? "Float32 (default)" : datatype
+
     mkpath(writedir)
     saveconfiguration(writedir, settings, args, version)
 
@@ -83,7 +85,12 @@ function makehomogeneous_main(args; version="1.0")
 
     mag = makehomogeneous(mag_nii; sigma_mm=settings["sigma-bias-field"], nbox=settings["nbox"])
 
-    savenii(mag, filename, writedir, hdr)
+    # savenii writes Float32 unless told otherwise.
+    if isnothing(datatype)
+        savenii(mag, filename, writedir, hdr)
+    else
+        savenii(mag, filename, writedir, hdr; datatype)
+    end
 end
 
 function exception_handler(settings::ArgParseSettings, err, err_code::Int=1)
@@ -102,6 +109,7 @@ function saveconfiguration(writedir, settings, args, version)
         optional = [:julia],
         inputs = ["magnitude" => get(settings, "magnitude", nothing)],
         packages = [MriResearchTools],
+        describe = describe_input,
     )
 end
 end
