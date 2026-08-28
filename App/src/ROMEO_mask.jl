@@ -152,8 +152,7 @@ end
 
 function saveconfiguration(writedir, settings, args, version)
     writedir = abspath(writedir)
-    # "neco" is the internal name for the echo count; the record is read by
-    # people, so it goes in under the name the help text uses.
+    # "neco" is internal; the record uses the name from the help text.
     settings = copy(settings)
     haskey(settings, "neco") && (settings["number-of-echoes"] = pop!(settings, "neco"))
     # The mask is a threshold on the ROMEO voxel quality map.

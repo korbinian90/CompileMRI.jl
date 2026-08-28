@@ -72,9 +72,6 @@ function makehomogeneous_main(args; version="1.0")
         writedir = dirname(writedir)
     end
 
-    # --datatype was parsed and then never applied, so the option did nothing and
-    # the record said `datatype: nothing` either way. Keep the value, and put the
-    # default into the record rather than leaving it blank.
     datatype = settings["datatype"]
     settings["datatype"] = isnothing(datatype) ? "Float32 (default)" : datatype
 
@@ -88,8 +85,7 @@ function makehomogeneous_main(args; version="1.0")
 
     mag = makehomogeneous(mag_nii; sigma_mm=settings["sigma-bias-field"], nbox=settings["nbox"])
 
-    # savenii writes Float32 unless told otherwise, so an unset --datatype needs
-    # no special case here.
+    # savenii writes Float32 unless told otherwise.
     if isnothing(datatype)
         savenii(mag, filename, writedir, hdr)
     else
