@@ -30,7 +30,8 @@ function getargs(args::AbstractVector, version)
         arg_type = Int
         "--datatype", "-d"
         help = """The datatype of the output image. Defaults to Float32.
-            e.g. `Float64` or `UInt8`"""
+            Float types only, e.g. `Float64` - an integer type throws, because the
+            corrected magnitude is fractional and the writer does not round."""
         arg_type = DataType
         "--verbose", "-v"
         help = "verbose output messages"

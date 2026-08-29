@@ -1,5 +1,6 @@
 using CompileMRI
 using Test
+using Aqua
 using Pkg
 
 @testset "Functionality Test" begin
@@ -9,4 +10,8 @@ end
 
 @testset "Compile Test" begin
     # include("compile_test.jl")
+end
+
+@testset "Aqua" begin
+    Aqua.test_all(CompileMRI)
 end
