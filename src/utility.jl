@@ -13,8 +13,15 @@ function copy_matlab(path)
 end
 
 function copy_documentation(path)
-    cp(joinpath(dirname(@__DIR__), "documentation", "README.md"), joinpath(path, "README.md"))
+    docs = joinpath(dirname(@__DIR__), "documentation")
+    cp(joinpath(docs, "README.md"), joinpath(path, "README.md"))
     cp(joinpath(dirname(@__DIR__), "LICENSE"), joinpath(path, "LICENSE"))
+    # Only macOS quarantines downloads, and the instructions are the first thing
+    # a macOS user needs, so they ship inside the bundle rather than living only
+    # on a release page the archive gets separated from.
+    if Sys.isapple()
+        cp(joinpath(docs, "README_macOS.txt"), joinpath(path, "README_macOS.txt"))
+    end
 end
 
 function update()

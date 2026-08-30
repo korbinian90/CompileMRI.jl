@@ -110,6 +110,36 @@ jobs:
           echo "max GLIBC required across the bundle: ${max:-none}"
           echo "**Linux glibc floor:** \`${max:-none}\`" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Ad-hoc sign the bundle (macOS)
+        # Apple Silicon refuses to execute a Mach-O carrying no signature at
+        # all, so this is what makes the arm64 build runnable rather than a
+        # cosmetic step. It is not a paid Developer ID signature and does not
+        # satisfy Gatekeeper, so a downloaded bundle still needs its quarantine
+        # flag cleared - README_macOS.txt covers that.
+        #
+        # Every Mach-O is signed individually. --deep is deprecated, and there
+        # is no .app bundle here, just bin/ and lib/.
+        if: ${{ runner.os == 'macOS' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          n=0
+          while IFS= read -r f; do
+            if file -b "$f" | grep -q 'Mach-O'; then
+              codesign --force --sign - "$f"
+              n=$((n + 1))
+            fi
+          done < <(find compiled -type f)
+          echo "ad-hoc signed $n Mach-O files"
+          # A signature that does not verify is worse than none: it would fail
+          # at launch rather than at build time.
+          while IFS= read -r f; do
+            if file -b "$f" | grep -q 'Mach-O'; then
+              codesign --verify --strict "$f"
+            fi
+          done < <(find compiled -type f)
+          echo "all signatures verify"
+
       - name: Get Version
         id: version
         shell: bash
@@ -151,9 +181,77 @@ jobs:
         # The Julia version is in the artifact name, not the archive name: a
         # manual run exists to compare toolchains, and two runs on different
         # Julia versions would otherwise produce identically named bundles.
-        # Release assets are unaffected - this step is dispatch-only.
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        # Uploaded on every trigger, not just dispatch: the macOS install
+        # check below consumes this artifact, and it has to run on release
+        # builds above all.
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}_julia${{ env.JULIA_VERSION }}
           path: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+
+  verify_macos:
+    # Runs the install exactly as README_macOS.txt tells a user to, on both
+    # architectures, so the instructions are executed rather than asserted.
+    name: macOS install check - ${{ matrix.label }}
+    needs: compile
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: macos-15-intel, arch: x64,     label: macos_x64}
+          - {os: macos-14,       arch: aarch64, label: macos_arm64}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: ${{ inputs.julia_version || '1.10' }}
+          arch: ${{ matrix.arch }}
+      - uses: julia-actions/julia-buildpkg@e3eb439fad4f9aba7da2667e7510e4a46ebc46e1 # v1
+      - name: Get Version
+        id: version
+        shell: bash
+        run: echo "version=$(julia --project=@. -e 'using CompileMRI; println(CompileMRI.mritools_version())')" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}_julia${{ inputs.julia_version || '1.10' }}
+
+      - name: Extract as the README tells a user to
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle=mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
+          tar -xzf "$bundle.tar.gz"
+          test -f "$bundle/README_macOS.txt" || { echo "::error::README_macOS.txt is missing from the bundle"; exit 1; }
+          echo "BUNDLE=$bundle" >> "$GITHUB_ENV"
+
+      - name: The ad-hoc signature survived archiving
+        shell: bash
+        run: codesign --verify --strict "$BUNDLE/bin/romeo"
+
+      - name: Clearing quarantine works, as documented
+        # A downloaded archive carries com.apple.quarantine and propagates it to
+        # everything Archive Utility extracts. Nothing in CI is downloaded
+        # through a browser, so the flag is set here deliberately - otherwise
+        # this step would pass without ever exercising what it claims to.
+        shell: bash
+        run: |
+          set -euo pipefail
+          xattr -w -r com.apple.quarantine "0081;00000000;Safari;" "$BUNDLE"
+          xattr -pr com.apple.quarantine "$BUNDLE/bin/romeo" >/dev/null \
+            || { echo "::error::could not set the quarantine flag, the check below would prove nothing"; exit 1; }
+          xattr -cr "$BUNDLE"
+          if xattr -pr com.apple.quarantine "$BUNDLE" 2>/dev/null | grep -q .; then
+            echo "::error::xattr -cr left a quarantine flag behind, README_macOS.txt is wrong"
+            exit 1
+          fi
+          echo "quarantine set, then cleared by the documented command"
+
+      - name: Every program starts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for app in romeo clearswi mcpc3ds makehomogeneous romeo_mask; do
+            "$BUNDLE/bin/$app" --help >/dev/null
+            echo "  $app ok"
+          done
