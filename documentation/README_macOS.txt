@@ -58,8 +58,8 @@ run them. Clear the flag for the whole folder at once:
    blocks them until the flag is removed. The command clears the flag on the
    folder you dragged in and nothing else.)
 
-If step 4 reports "Operation not permitted", the files belong to another user.
-Repeat it with "sudo xattr -cr " instead and enter your Mac password.
+If step 4 reports "Permission denied" or "Operation not permitted", repeat it
+with "sudo xattr -cr " instead and enter your Mac password.
 
 
 NOTES

@@ -128,6 +128,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Julia installs its artifact store read-only, and PackageCompiler
+          # copies it in with those modes. Extended attributes cannot be set or
+          # cleared on a file without write permission, so a user running the
+          # documented xattr -cr against the extracted bundle got
+          # "Permission denied" on every artifact file and left the quarantine
+          # flags there. Measured on this bundle: the FFTW artifact under
+          # share/julia/artifacts. Making the tree user-writable before it is
+          # archived is what lets the instructions work without sudo.
+          chmod -R u+w compiled
           n=0
           while IFS= read -r f; do
             if file -b "$f" | grep -q 'Mach-O'; then
