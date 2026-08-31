@@ -1,5 +1,6 @@
 clearvars
-addpath('NIfTI_20140122')
+addpath(fileparts(mfilename('fullpath')))
+addpath(fullfile(fileparts(mfilename('fullpath')), 'NIfTI_20140122'))
 
 %% Required Parameters
 phase_fn = '/path_to_data/Phase.nii';
@@ -11,10 +12,13 @@ parameters.TE = [1,2,3];
 %% Optional Parameters
 parameters.output_dir = fullfile(tempdir, 'clearswi_tmp'); % if not set pwd() is used
 parameters.voxel_size = load_nii_hdr(phase_fn).dime.pixdim(2:4); % if set, the written NIfTI files will have the matching voxelsize
-parameters.mag_combine = 'SNR';
-parameters.unwrapping_algorithm = 'laplacian';
-parameters.phase_scaling_strength = '4';
+parameters.mag_combine = 'SNR'; % 'SNR' | 'average' | 'echo 3' | 'SE 5'
+parameters.unwrapping_algorithm = 'laplacian'; % 'laplacian' | 'romeo' | 'laplacianslice'
+parameters.phase_scaling_strength = 4;
 parameters.phase_scaling_type = 'tanh';
+% parameters.qsm = true; % weight the phase with TGV QSM
+% parameters.qsm_input = '/path_to_data/qsm.nii'; % use a precalculated QSM instead of the phase
+% parameters.writesteps = fullfile(tempdir, 'clearswi_steps'); % write the intermediate results
 parameters.additional_flags = '--verbose'; % additional_flags are pasted directly to CLEARSWI cmd (run "$ bin/clearswi --help" for options)
 % parameters.command = '<clearswi_location>'; % for special cases, when clearswi binary is not found or a wrapper is used
 
