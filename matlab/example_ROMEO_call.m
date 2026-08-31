@@ -1,5 +1,6 @@
 clearvars
-addpath('NIfTI_20140122')
+addpath(fileparts(mfilename('fullpath')))
+addpath(fullfile(fileparts(mfilename('fullpath')), 'NIfTI_20140122'))
 
 %% Phase
 phase_fn = '/path_to_data/Phase.nii';
