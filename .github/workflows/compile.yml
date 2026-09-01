@@ -174,23 +174,39 @@ jobs:
           fi
           echo "tag $tag matches version $ver"
       - name: Compress Unix
+        # Both formats ship. xz is 40% smaller than gzip on this bundle
+        # (measured on the v4.8.0 Linux tree: 173.5 MB at gzip -6, 104.5 MB at
+        # xz -6), and every tar that can read one of these can read the other.
+        # The .tar.gz stays because downloaders elsewhere fetch it by name; it
+        # can be dropped once they have moved.
+        #
+        # The default xz preset, not -9: -9 saves a further 4 MB but needs a
+        # 64 MB dictionary to decompress instead of 8 MB, which is a bad trade
+        # to push onto whoever is unpacking it.
         if: ${{ runner.os != 'Windows' }}
+        shell: bash
         run: |
-          echo "ZIP_ENDING=tar.gz" >> $GITHUB_ENV
-          echo "ZIP_TYPE=gzip" >> $GITHUB_ENV
-          mv compiled mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
-          tar -vczf mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.tar.gz mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
+          name=mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}
+          mv compiled "$name"
+          tar -czf "$name.tar.gz" "$name"
+          XZ_OPT=-T0 tar -cJf "$name.tar.xz" "$name"
+          ls -l "$name.tar.gz" "$name.tar.xz"
+          {
+            echo "RELEASE_ASSETS<<EOF"
+            echo "$name.tar.gz"
+            echo "$name.tar.xz"
+            echo "EOF"
+          } >> $GITHUB_ENV
       - name: Compress Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          echo "ZIP_ENDING=zip" >> $env:GITHUB_ENV
-          echo "ZIP_TYPE=zip" >> $env:GITHUB_ENV
+          echo "RELEASE_ASSETS=mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.zip" >> $env:GITHUB_ENV
           Compress-Archive -Path 'compiled/*' -DestinationPath 'mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.zip'
       - name: Upload release
         if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
-          files: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          files: ${{ env.RELEASE_ASSETS }}
       - name: Upload artifact
         # The Julia version is in the artifact name, not the archive name: a
         # manual run exists to compare toolchains, and two runs on different
@@ -201,7 +217,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}_julia${{ env.JULIA_VERSION }}
-          path: mritools_${{ matrix.label }}_${{ steps.version.outputs.version }}.${{ env.ZIP_ENDING }}
+          path: ${{ env.RELEASE_ASSETS }}
 
   verify_macos:
     # Runs the install exactly as README_macOS.txt tells a user to, on both
@@ -233,7 +249,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tar -xzf "$BUNDLE.tar.gz"
+          tar -xf "$BUNDLE.tar.xz"
           test -f "$BUNDLE/README_macOS.txt" || { echo "::error::README_macOS.txt is missing from the bundle"; exit 1; }
 
       - name: The ad-hoc signatures survived archiving
