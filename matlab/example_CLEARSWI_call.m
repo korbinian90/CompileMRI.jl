@@ -3,11 +3,14 @@ addpath(fileparts(mfilename('fullpath')))
 addpath(fullfile(fileparts(mfilename('fullpath')), 'NIfTI_20140122'))
 
 %% Required Parameters
-phase_fn = '/path_to_data/Phase.nii';
-mag_fn = '/path_to_data/Magnitude.nii';
+% The example data shipped next to this script is a small three echo dataset.
+% Replace these two paths with your own once you have seen this run.
+data_dir = fullfile(fileparts(mfilename('fullpath')), 'example_data');
+phase_fn = fullfile(data_dir, 'Phase.nii');
+mag_fn = fullfile(data_dir, 'Mag.nii');
 phase = load_nii(phase_fn).img;
 mag = load_nii(mag_fn).img;
-parameters.TE = [1,2,3];
+parameters.TE = [1,2,3]; % these belong to the example data
 
 %% Optional Parameters
 parameters.output_dir = fullfile(tempdir, 'clearswi_tmp'); % if not set pwd() is used

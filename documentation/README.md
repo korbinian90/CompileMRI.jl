@@ -47,8 +47,9 @@ methods that run actually used.
 Matlab wrappers are provided for all five programs: `ROMEO.m`, `CLEARSWI.m`,
 `MCPC3DS.m`, `MakeHomogeneous.m` and `ROMEO_mask.m`. They internally call the
 same commandline programs. See `example_ROMEO_call.m` and
-`example_CLEARSWI_call.m`, and the help text at the top of each wrapper for the
-parameters it accepts.
+`example_CLEARSWI_call.m`, which run as downloaded against the small three
+echo dataset in `matlab/example_data`, and the help text at the top of each
+wrapper for the parameters it accepts.
 
 # Julia
 The programs are written in [julia](https://julialang.org/) and are available open-source:
