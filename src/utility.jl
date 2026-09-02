@@ -49,6 +49,22 @@ function test(path, app_name)
     @assert isfile(executable)
     cmd = `$executable $args`
     @assert success(run(cmd))
+    check_versions_recorded(file, app_name)
+end
+
+# --strip-metadata removes the path metadata pkgversion reads, so a package that
+# does not record its own version in a constant makes the provenance record say
+# "ROMEO: nothing". That is silent: the run succeeds and the outputs are
+# correct, only the record of what produced them is lost. Fail the build
+# instead, so the stripping flag cannot outrun the packages that have to
+# support it.
+function check_versions_recorded(outdir, app_name)
+    settings = joinpath(outdir, "settings_$app_name.txt")
+    isfile(settings) || return
+    unrecorded = filter(l -> endswith(rstrip(l), ": nothing"), readlines(settings))
+    isempty(unrecorded) && return
+    error("$app_name did not record a package version in $settings: " *
+          join(strip.(unrecorded), ", "))
 end
 
 function version()
