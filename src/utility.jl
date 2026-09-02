@@ -50,6 +50,20 @@ function test(path, app_name)
     cmd = `$executable $args`
     @assert success(run(cmd))
     check_versions_recorded(file, app_name)
+    check_version_flag(executable, app_name)
+end
+
+# ArgParseSettings takes `version` as a keyword. Written without the semicolon,
+# ArgParseSettings(add_version=true, version) passes it positionally, ArgParse
+# ignores it, and the program answers --version with "Unspecified version".
+# v4.8.0 shipped that way for clearswi, mcpc3ds and makehomogeneous, while
+# romeo and romeo_mask were correct, because those two had the semicolon. There
+# is nothing to notice unless someone runs --version, so the build asks.
+function check_version_flag(executable, app_name)
+    reported = strip(read(`$executable --version`, String))
+    expected = mritools_version()
+    reported == expected && return
+    error("$app_name --version reported $(repr(reported)), expected $(repr(expected))")
 end
 
 # --strip-metadata removes the path metadata pkgversion reads, so a package that
