@@ -53,12 +53,6 @@ function test(path, app_name)
     check_version_flag(executable, app_name)
 end
 
-# ArgParseSettings takes `version` as a keyword. Written without the semicolon,
-# ArgParseSettings(add_version=true, version) passes it positionally, ArgParse
-# ignores it, and the program answers --version with "Unspecified version".
-# v4.8.0 shipped that way for clearswi, mcpc3ds and makehomogeneous, while
-# romeo and romeo_mask were correct, because those two had the semicolon. There
-# is nothing to notice unless someone runs --version, so the build asks.
 function check_version_flag(executable, app_name)
     reported = strip(read(`$executable --version`, String))
     expected = mritools_version()
@@ -66,19 +60,11 @@ function check_version_flag(executable, app_name)
     error("$app_name --version reported $(repr(reported)), expected $(repr(expected))")
 end
 
-# --strip-metadata removes the path metadata pkgversion reads, so a package that
-# does not record its own version in a constant makes the provenance record say
-# "ROMEO: nothing". That is silent: the run succeeds and the outputs are
-# correct, only the record of what produced them is lost. Fail the build
-# instead, so the stripping flag cannot outrun the packages that have to
-# support it.
+# With --strip-metadata, a package without PKG_VERSION records "nothing".
 function check_versions_recorded(outdir, app_name)
     settings = joinpath(outdir, "settings_$app_name.txt")
     isfile(settings) || return
-    # Only the [versions] section. "nothing" is a legitimate value further down:
-    # the romeo smoke test runs without a magnitude, so [settings] contains
-    # "magnitude: nothing", which the first version of this check reported as a
-    # missing package version.
+    # [versions] only; "nothing" is a valid value in [settings]
     versions = String[]
     in_section = false
     for line in readlines(settings)
