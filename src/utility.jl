@@ -75,10 +75,24 @@ end
 function check_versions_recorded(outdir, app_name)
     settings = joinpath(outdir, "settings_$app_name.txt")
     isfile(settings) || return
-    unrecorded = filter(l -> endswith(rstrip(l), ": nothing"), readlines(settings))
+    # Only the [versions] section. "nothing" is a legitimate value further down:
+    # the romeo smoke test runs without a magnitude, so [settings] contains
+    # "magnitude: nothing", which the first version of this check reported as a
+    # missing package version.
+    versions = String[]
+    in_section = false
+    for line in readlines(settings)
+        stripped = strip(line)
+        if startswith(stripped, "[")
+            in_section = stripped == "[versions]"
+        elseif in_section && !isempty(stripped)
+            push!(versions, stripped)
+        end
+    end
+    unrecorded = filter(l -> endswith(l, ": nothing"), versions)
     isempty(unrecorded) && return
     error("$app_name did not record a package version in $settings: " *
-          join(strip.(unrecorded), ", "))
+          join(unrecorded, ", "))
 end
 
 function version()
