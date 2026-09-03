@@ -10,6 +10,10 @@ Pick the archive that matches your Mac:
 If you are unsure, click the Apple menu, then "About This Mac", and look at
 "Chip" or "Processor".
 
+Each one is offered as .tar.xz and .tar.gz. They contain the same files; the
+.tar.xz is about 40% smaller to download and macOS unpacks it with the same
+command.
+
 
 RECOMMENDED: EXTRACT IN THE TERMINAL
 ------------------------------------
@@ -26,7 +30,7 @@ ready to use with no further steps.
 3. Paste the following, correcting the file name if it differs, then press
    Enter:
 
-   tar -xzf mritools_macos_arm64_4.8.0.tar.gz
+   tar -xf mritools_macos_arm64_4.8.0.tar.xz
 
 4. Run a program to check it works:
 

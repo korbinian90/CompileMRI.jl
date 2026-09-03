@@ -49,6 +49,36 @@ function test(path, app_name)
     @assert isfile(executable)
     cmd = `$executable $args`
     @assert success(run(cmd))
+    check_versions_recorded(file, app_name)
+    check_version_flag(executable, app_name)
+end
+
+function check_version_flag(executable, app_name)
+    reported = strip(read(`$executable --version`, String))
+    expected = mritools_version()
+    reported == expected && return
+    error("$app_name --version reported $(repr(reported)), expected $(repr(expected))")
+end
+
+# With --strip-metadata, a package without PKG_VERSION records "nothing".
+function check_versions_recorded(outdir, app_name)
+    settings = joinpath(outdir, "settings_$app_name.txt")
+    isfile(settings) || return
+    # [versions] only; "nothing" is a valid value in [settings]
+    versions = String[]
+    in_section = false
+    for line in readlines(settings)
+        stripped = strip(line)
+        if startswith(stripped, "[")
+            in_section = stripped == "[versions]"
+        elseif in_section && !isempty(stripped)
+            push!(versions, stripped)
+        end
+    end
+    unrecorded = filter(l -> endswith(l, ": nothing"), versions)
+    isempty(unrecorded) && return
+    error("$app_name did not record a package version in $settings: " *
+          join(unrecorded, ", "))
 end
 
 function version()
