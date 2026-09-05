@@ -1,0 +1,44 @@
+name: juliac
+# Builds romeo as a statically compiled program with juliac (Julia 1.13) and
+# smoke-tests it. Manual only: the PackageCompiler bundle in compile.yml is
+# what a release ships, this is the experimental path towards small binaries.
+on:
+  workflow_dispatch:
+    inputs:
+      julia_version:
+        description: 'Julia version to build with, 1.13 or newer'
+        required: false
+        default: '1.13.0-rc4'
+permissions:
+  contents: read
+jobs:
+  romeo:
+    name: romeo - ubuntu-22.04 - Julia ${{ inputs.julia_version }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: ${{ inputs.julia_version }}
+      - name: Build
+        run: julia --color=yes juliac/build.jl build/romeo
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          romeo=build/romeo/bin/romeo
+          $romeo --version
+          time $romeo test/data/small/Phase.nii -m test/data/small/Mag.nii -t "[4,8,12]" -o build/out -v
+          test -s build/out/unwrapped.nii
+          test -s build/out/settings_romeo.txt
+          du -sh build/romeo
+          echo "**romeo bundle:** \`$(du -sh build/romeo | cut -f1)\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the glibc floor
+        run: |
+          max=$(find build/romeo -type f \( -name '*.so*' -o -perm -u+x \) \
+                  -exec sh -c 'objdump -T "$1" 2>/dev/null | grep -oE "GLIBC_[0-9.]+"' _ {} \; \
+                | sort -uV | tail -1)
+          echo "**Linux glibc floor:** \`${max:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: romeo_juliac_linux_x64_julia-${{ inputs.julia_version }}
+          path: build/romeo

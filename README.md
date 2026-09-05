@@ -43,6 +43,41 @@
    julia> compile("/tmp/compiled"; force=true)
    ```
 
+## Static compilation with juliac (experimental)
+
+`romeo` can also be built with `juliac`, the static compiler that ships with
+Julia 1.13. It compiles only the code the program can reach and leaves out the
+Julia compiler, LLVM and the system image, so the result is a small directory
+that starts instantly. Measured on the `test/data/small` dataset (3 echoes,
+51x51x41, with magnitude and robustmask), Linux x64:
+
+| | PackageCompiler bundle (v4.9.0) | juliac `romeo` |
+|---|---|---|
+| installed size | 593 MB | 57 MB |
+| download (.tar.xz) | 101 MB | 13 MB |
+| `romeo` run, including start-up | 3.9 s | 0.08 s |
+
+The output files are byte-identical to the ones from the PackageCompiler
+bundle. There is no memory mapping in this build: the inputs are read into
+memory as Float32.
+
+```bash
+julia +1.13 juliac/build.jl build/romeo
+build/romeo/bin/romeo phase.nii -m mag.nii -t "[4,8,12]" -o out
+```
+
+`build.jl` installs the `juliac` app on first use. It needs the versions pinned
+in `juliac/Project.toml`, which are the first ones whose code compiles
+statically: ROMEO 1.7 with its own command line parser in place of ArgParse,
+and MriResearchTools 3.9 with NIfTI readers and a writer of fixed type. The
+`juliac` workflow builds and smoke-tests it on demand.
+
+`clearswi`, `mcpc3ds`, `makehomogeneous` and `romeo_mask` are not compiled
+this way yet: their entry points still parse with ArgParse into untyped
+dictionaries, which needs the same port that `romeo` received, and CLEAR-SWI
+additionally calls into TGV QSM. Until then the PackageCompiler bundle above is
+the release.
+
 ## Which library versions a release contains
 
 The compiled `mritools` bundle is a snapshot, not a rolling build. `App/Project.toml`

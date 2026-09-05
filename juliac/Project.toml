@@ -1,0 +1,17 @@
+name = "RomeoStatic"
+uuid = "b3f1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+version = "0.1.0"
+authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
+
+[deps]
+MriResearchTools = "557dad86-b9bd-4533-8525-1a39684d020f"
+ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
+
+[sources]
+MriResearchTools = {path = "/home/user/MriResearchTools.jl"}
+ROMEO = {path = "/home/user/ROMEO.jl"}
+
+[compat]
+MriResearchTools = "=3.9.0"
+ROMEO = "=1.7.0"
+julia = "1.13"
