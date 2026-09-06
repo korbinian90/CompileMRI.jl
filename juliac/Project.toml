@@ -1,4 +1,4 @@
-name = "RomeoStatic"
+name = "MriToolsStatic"
 uuid = "b3f1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
 version = "0.1.0"
 authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
@@ -7,9 +7,12 @@ authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
 MriResearchTools = "557dad86-b9bd-4533-8525-1a39684d020f"
 ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
 
+# Until the pinned versions are registered they come from checkouts beside
+# this repository. Remove this table once they are, so a build resolves from
+# the registry.
 [sources]
-MriResearchTools = {path = "/home/user/MriResearchTools.jl"}
-ROMEO = {path = "/home/user/ROMEO.jl"}
+MriResearchTools = {path = "../../MriResearchTools.jl"}
+ROMEO = {path = "../../ROMEO.jl"}
 
 [compat]
 MriResearchTools = "=4.0.0"
