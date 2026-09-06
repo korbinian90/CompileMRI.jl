@@ -1,8 +1,14 @@
-# Entry point for the statically compiled romeo, built with juliac (see build.jl).
+# Entry point for the statically compiled mritools, built with juliac (see
+# build.jl). juliac compiles one entry point per executable, so all commands
+# share this one and it dispatches on the name it was invoked by (bin/romeo is
+# a link to bin/mritools) or, failing that, on the first argument
+# (`mritools romeo ...`). One executable also means the code common to the
+# commands, Base and the NIfTI I/O above all, is compiled once instead of once
+# per command.
 using MriResearchTools, ROMEO
 
-# romeo never calls BLAS, FFTW, SuiteSparse or the big number libraries. Their
-# packages load 65 MB of shared libraries when they initialise, so their
+# No command here calls BLAS, FFTW, SuiteSparse or the big number libraries.
+# Their packages load 65 MB of shared libraries when they initialise, so their
 # initialisation is turned off for this program, as juliac does for Pkg.
 @eval ROMEO.Statistics.LinearAlgebra __init__() = nothing
 @eval MriResearchTools.FFTW __init__() = nothing
@@ -29,12 +35,42 @@ const version = let
     String(m.captures[1])
 end
 
+const COMMANDS = ("romeo",)
+
+run_command(name::String, args::Vector{String})::Cint =
+    name == "romeo" ? unwrapping_main(args; version) :
+    usage("unknown command \"" * name * "\"")
+
+function usage(message::String)::Cint
+    print(Core.stderr, "mritools ", version, message == "" ? "" : ": " * message, "\n",
+          "usage: mritools <command> [arguments], or the command by its own name\n",
+          "commands: ", join(COMMANDS, " "), "\n")
+    return message == "" ? 0 : 2
+end
+
+# The executable's own file name without directory or .exe, written out so
+# that nothing here depends on the path functions compiling statically.
+function invoked_as()
+    path = Base.PROGRAM_FILE
+    start = 1
+    for (i, c) in pairs(path)
+        (c == '/' || c == '\\') && (start = nextind(path, i))
+    end
+    name = path[start:end]
+    return endswith(name, ".exe") ? name[1:end-4] : name
+end
+
 # Base.display_error cannot be compiled statically, so the common exceptions are
 # printed by hand, in the catch block itself: the exception has no static type,
 # so it cannot be passed to a function.
 function (@main)(args::Vector{String})::Cint
     try
-        return unwrapping_main(args; version)
+        name = invoked_as()
+        name in COMMANDS && return run_command(name, args)
+        isempty(args) && return usage("")
+        args[1] == "--version" && (print(Core.stdout, version, "\n"); return 0)
+        args[1] == "--help" && return usage("")
+        return run_command(args[1], args[2:end])
     catch e
         msg = if e isa ErrorException || e isa ArgumentError || e isa DimensionMismatch
             m = e.msg

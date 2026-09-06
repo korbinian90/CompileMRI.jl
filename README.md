@@ -48,7 +48,11 @@
 `romeo` can also be built with `juliac`, the static compiler that ships with
 Julia 1.13. It compiles only the code the program can reach and leaves out the
 Julia compiler, LLVM and the system image, so the result is a small directory
-that starts instantly. Measured on the `test/data/small` dataset (3 echoes,
+that starts instantly. juliac compiles one entry point per executable, so the
+bundle is one `mritools` executable that dispatches on the name it is invoked
+by, with `bin/romeo` a link to it; `mritools romeo ...` does the same. Adding a
+command adds a name to the dispatcher, and the code the commands share is
+compiled once. Measured on the `test/data/small` dataset (3 echoes,
 51x51x41, with magnitude and robustmask), Linux x64:
 
 | | PackageCompiler bundle (v4.9.0) | juliac `romeo` |
@@ -62,25 +66,28 @@ bundle. There is no memory mapping in this build: the inputs are read into
 memory as Float32.
 
 ```bash
-julia +1.13 juliac/build.jl build/romeo
-build/romeo/bin/romeo phase.nii -m mag.nii -t "[4,8,12]" -o out
+julia +1.13 juliac/build.jl build/mritools
+build/mritools/bin/romeo phase.nii -m mag.nii -t "[4,8,12]" -o out
+build/mritools/bin/mritools romeo --help
 ```
 
 `build.jl` installs the `juliac` app on first use. It needs the versions pinned
 in `juliac/Project.toml`, which are the first ones whose code compiles
 statically: MriResearchTools 4 with its own command line parser in place of
-ArgParse and with NIfTI readers and a writer of fixed type, and ROMEO 2. The
-`juliac` workflow builds and smoke-tests it on demand.
+ArgParse and with NIfTI readers and a writer of fixed type, and ROMEO 2. Until
+those are registered, `juliac/Project.toml` takes them from checkouts beside
+this repository. The `juliac` workflow builds and smoke-tests it on demand.
 
 Of the 23 MB, 14 MB is the program and 9 MB the twelve runtime libraries it
 loads (libjulia, its C++ runtime, libunwind, compression and the number
 libraries). A hello-world executable is 1.7 MB but needs the same libraries.
 
-`clearswi`, `mcpc3ds`, `makehomogeneous` and `romeo_mask` are not compiled
-this way yet: their entry points still parse with ArgParse into untyped
+`clearswi`, `mcpc3ds`, `makehomogeneous` and `romeo_mask` are not in the
+dispatcher yet: their entry points still parse with ArgParse into untyped
 dictionaries, which needs the same port that `romeo` received, and CLEAR-SWI
-additionally calls into TGV QSM. Until then the PackageCompiler bundle above is
-the release.
+additionally calls into TGV QSM. A trimmed build is all or nothing, so a
+command joins the dispatcher once it compiles. Until then the PackageCompiler
+bundle above is the release.
 
 ## Which library versions a release contains
 
