@@ -53,8 +53,8 @@ that starts instantly. Measured on the `test/data/small` dataset (3 echoes,
 
 | | PackageCompiler bundle (v4.9.0) | juliac `romeo` |
 |---|---|---|
-| installed size | 593 MB | 57 MB |
-| download (.tar.xz) | 101 MB | 13 MB |
+| installed size | 593 MB | 23 MB |
+| download (.tar.xz) | 101 MB | 4.7 MB |
 | `romeo` run, including start-up | 3.9 s | 0.08 s |
 
 The output files are byte-identical to the ones from the PackageCompiler
@@ -68,9 +68,13 @@ build/romeo/bin/romeo phase.nii -m mag.nii -t "[4,8,12]" -o out
 
 `build.jl` installs the `juliac` app on first use. It needs the versions pinned
 in `juliac/Project.toml`, which are the first ones whose code compiles
-statically: ROMEO 1.7 with its own command line parser in place of ArgParse,
-and MriResearchTools 3.9 with NIfTI readers and a writer of fixed type. The
+statically: MriResearchTools 4 with its own command line parser in place of
+ArgParse and with NIfTI readers and a writer of fixed type, and ROMEO 2. The
 `juliac` workflow builds and smoke-tests it on demand.
+
+Of the 23 MB, 14 MB is the program and 9 MB the twelve runtime libraries it
+loads (libjulia, its C++ runtime, libunwind, compression and the number
+libraries). A hello-world executable is 1.7 MB but needs the same libraries.
 
 `clearswi`, `mcpc3ds`, `makehomogeneous` and `romeo_mask` are not compiled
 this way yet: their entry points still parse with ArgParse into untyped
