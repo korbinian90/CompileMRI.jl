@@ -29,10 +29,11 @@ rm(OUT; force=true, recursive=true)
 run(`$juliac --output-exe romeo --trim=safe --experimental --bundle $OUT --project $HERE $(joinpath(HERE, "romeo.jl"))`)
 
 # The bundle holds every runtime library of the Julia installation. romeo loads
-# eleven of them, measured with LD_DEBUG=libs; the rest serve Pkg, the REPL,
+# twelve of them, measured with LD_DEBUG=libs; the rest serve Pkg, the REPL,
 # BLAS and FFTW, whose initialisation romeo.jl turns off. Only the measured set
-# is kept, and the executable is stripped of its debug information, which is
-# 60% of it.
+# is kept. The executable and the libraries are then stripped of their debug
+# information: Julia ships the libraries unstripped, and that is 34 of their
+# 43 MB.
 const RUNTIME_LIBRARIES = ["libjulia", "libjulia-internal", "libstdc++", "libgcc_s", "libunwind",
                            "libz", "libzstd", "libatomic", "libopenlibm", "libpcre2-8", "libgmp", "libmpfr"]
 library_name(f) = first(split(f, ".so"; limit=2))
@@ -44,6 +45,12 @@ end
 rm(joinpath(OUT, "share"); force=true, recursive=true) # artifacts and certificates, unused
 if !Sys.iswindows() && Sys.which("strip") !== nothing
     run(`strip $(joinpath(OUT, "bin", "romeo"))`)
+    if Sys.islinux()
+        for (root, _, files) in walkdir(joinpath(OUT, "lib")), f in files
+            path = joinpath(root, f)
+            occursin(".so", f) && !islink(path) && run(`strip --strip-unneeded $path`)
+        end
+    end
 end
 
 size_mb(dir) = round(sum(filesize(joinpath(r, f)) for (r, _, fs) in walkdir(dir) for f in fs if !islink(joinpath(r, f))) / 1e6; digits=1)
