@@ -9,7 +9,7 @@
 # compiled, so a library that needs dynamic dispatch would fail the build
 # rather than the program.
 
-using Pkg
+using Pkg, TOML
 
 const HERE = @__DIR__
 const OUT = abspath(length(ARGS) >= 1 ? ARGS[1] : joinpath(HERE, "..", "build", "mritools"))
@@ -22,6 +22,15 @@ if !isfile(juliac)
     Pkg.Apps.add("JuliaC")
 end
 
+# The static build and the PackageCompiler App ship the same library versions
+const APP = joinpath(HERE, "..", "App", "Project.toml")
+let app = TOML.parsefile(APP)["compat"], static = TOML.parsefile(joinpath(HERE, "Project.toml"))["compat"]
+    for (pkg, pin) in static
+        pkg == "julia" && continue
+        get(app, pkg, nothing) == pin || error("juliac/Project.toml pins $pkg $pin, App/Project.toml $(get(app, pkg, "nothing"))")
+    end
+end
+
 Pkg.activate(HERE)
 Pkg.instantiate()
 
@@ -29,37 +38,64 @@ rm(OUT; force=true, recursive=true)
 run(`$juliac --output-exe mritools --trim=safe --experimental --bundle $OUT --project $HERE $(joinpath(HERE, "mritools.jl"))`)
 
 # The bundle holds every runtime library of the Julia installation. mritools loads
-# twelve of them, measured with LD_DEBUG=libs; the rest serve Pkg, the REPL,
-# BLAS and FFTW, whose initialisation mritools.jl turns off. Only the measured set
-# is kept. The executable and the libraries are then stripped of their debug
+# twelve of them, measured with LD_DEBUG=libs; the rest serve Pkg, the REPL and
+# BLAS, whose initialisation mritools.jl turns off. Only the measured set is kept,
+# and FFTW, which clearswi uses, from the artifacts. The executable and the libraries are then stripped of their debug
 # information: Julia ships the libraries unstripped, and that is 34 of their
 # 43 MB.
 const RUNTIME_LIBRARIES = ["libjulia", "libjulia-internal", "libstdc++", "libgcc_s", "libunwind",
                            "libz", "libzstd", "libatomic", "libopenlibm", "libpcre2-8", "libgmp", "libmpfr"]
-library_name(f) = first(split(f, ".so"; limit=2))
+library_name(f) = first(split(f, "."; limit=2)) # libfftw3.so.3, libfftw3.3.dylib
 for (root, _, files) in walkdir(joinpath(OUT, "lib")), f in files
     endswith(f, ".dll") && continue # Windows keeps all of them beside the executable
     (occursin(".so", f) || occursin(".dylib", f)) && library_name(f) in RUNTIME_LIBRARIES && continue
     rm(joinpath(root, f))
 end
-rm(joinpath(OUT, "share"); force=true, recursive=true) # artifacts and certificates, unused
+# Of the artifacts only FFTW's is used; the certificates are not.
+const ARTIFACT_LIBRARIES = ["libfftw3", "libfftw3f"]
+artifacts = joinpath(OUT, "share", "julia", "artifacts")
+for artifact in (isdir(artifacts) ? readdir(artifacts) : String[])
+    dir = joinpath(artifacts, artifact)
+    libdir = joinpath(dir, Sys.iswindows() ? "bin" : "lib")
+    if isdir(libdir) && any(f -> library_name(f) in ARTIFACT_LIBRARIES, readdir(libdir))
+        # the libraries and their licence (FFTW is GPL), not headers or build files
+        for f in readdir(dir)
+            f in (basename(libdir), "share") || rm(joinpath(dir, f); recursive=true)
+        end
+        for f in readdir(libdir)
+            isdir(joinpath(libdir, f)) && rm(joinpath(libdir, f); recursive=true)
+        end
+    else
+        rm(dir; recursive=true)
+    end
+end
+for f in readdir(joinpath(OUT, "share", "julia"))
+    f == "artifacts" || rm(joinpath(OUT, "share", "julia", f); force=true, recursive=true)
+end
 if !Sys.iswindows() && Sys.which("strip") !== nothing
     run(`strip $(joinpath(OUT, "bin", "mritools"))`)
     if Sys.islinux()
-        for (root, _, files) in walkdir(joinpath(OUT, "lib")), f in files
+        for dir in (joinpath(OUT, "lib"), artifacts), (root, _, files) in walkdir(dir), f in files
             path = joinpath(root, f)
-            occursin(".so", f) && !islink(path) && run(`strip --strip-unneeded $path`)
+            occursin(".so", f) && !islink(path) && (chmod(path, 0o755); run(`strip --strip-unneeded $path`))
         end
     end
 end
 
 # One name per command: the executable dispatches on the name it is invoked by.
-const COMMANDS = ["romeo"]
+const COMMANDS = ["romeo", "clearswi", "romeo_mask", "mcpc3ds", "makehomogeneous"]
 exe = Sys.iswindows() ? "mritools.exe" : "mritools"
 for command in COMMANDS
     target = joinpath(OUT, "bin", Sys.iswindows() ? command * ".exe" : command)
     Sys.iswindows() ? cp(joinpath(OUT, "bin", exe), target) : symlink(exe, target)
 end
+
+# The same documents and Matlab wrappers as the PackageCompiler bundle
+const ROOT = joinpath(HERE, "..")
+cp(joinpath(ROOT, "matlab"), joinpath(OUT, "matlab"))
+cp(joinpath(ROOT, "documentation", "README.md"), joinpath(OUT, "README.md"))
+cp(joinpath(ROOT, "LICENSE"), joinpath(OUT, "LICENSE"))
+Sys.isapple() && cp(joinpath(ROOT, "documentation", "README_macOS.txt"), joinpath(OUT, "README_macOS.txt"))
 
 size_mb(dir) = round(sum(filesize(joinpath(r, f)) for (r, _, fs) in walkdir(dir) for f in fs if !islink(joinpath(r, f))) / 1e6; digits=1)
 println("mritools built in $OUT: $(size_mb(OUT)) MB")

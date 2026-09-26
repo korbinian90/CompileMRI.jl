@@ -1,11 +1,11 @@
 module App
 
 using MriResearchTools
-using ArgParse
 using QuantitativeSusceptibilityMappingTGV
 import ROMEO: unwrapping_main
 import CLEARSWI: clearswi_main
 
+include("Common.jl")
 include("Mcpc3ds.jl")
 include("HomogeneityCorrection.jl")
 include("ROMEO_mask.jl")
@@ -30,54 +30,54 @@ const version = let
     String(m.captures[1])
 end
 
+# A wrong command line returns 1 from the main function, and must reach the
+# shell as that rather than as success.
+exit_code(code::Integer) = Cint(code)
+exit_code(_) = Cint(0)
+
 function romeo()::Cint
     try
-        unwrapping_main(ARGS; version)
+        return exit_code(unwrapping_main(ARGS; version))
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
     end
-    return 0
 end
 
 function clearswi()::Cint
     try
-        clearswi_main(ARGS; version)
+        return exit_code(clearswi_main(ARGS; version))
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
     end
-    return 0
 end
 
 function mcpc3ds()::Cint
     try
-        mcpc3ds_main(ARGS; version)
+        return exit_code(mcpc3ds_main(ARGS; version))
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
     end
-    return 0
 end
 
 function makehomogeneous()::Cint
     try
-        makehomogeneous_main(ARGS; version)
+        return exit_code(makehomogeneous_main(ARGS; version))
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
     end
-    return 0
 end
 
 function romeo_mask()::Cint
     try
-        romeo_mask_main(ARGS; version)
+        return exit_code(romeo_mask_main(ARGS; version))
     catch
         Base.invokelatest(Base.display_error, Base.catch_stack())
         return 1
     end
-    return 0
 end
 
 export romeo, clearswi, mcpc3ds, makehomogeneous, romeo_mask
