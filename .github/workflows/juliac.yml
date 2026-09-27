@@ -3,7 +3,7 @@ name: juliac
 # smoke-tests every command. The PackageCompiler bundle in compile.yml is what a
 # release ships; this is the path towards small binaries.
 #
-# Until MriResearchTools 4, ROMEO 2 and CLEARSWI 1.8 are registered, the
+# Until MriResearchTools 3.9, ROMEO 1.7 and CLEARSWI 1.8 are registered, the
 # [sources] table of juliac/Project.toml takes them from checkouts beside this
 # repository, so the job checks out all four side by side. The libraries come
 # from the branch of the same name as this one when it exists, else from their

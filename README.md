@@ -83,8 +83,8 @@ build/mritools/bin/mritools clearswi --help
 ```
 
 `build.jl` installs the `juliac` app on first use. It needs the versions pinned in
-`juliac/Project.toml`, the first whose code compiles statically: ROMEO 2,
-MriResearchTools 4 with its own command line parser in place of ArgParse and NIfTI
+`juliac/Project.toml`, the first whose code compiles statically: ROMEO 1.7,
+MriResearchTools 3.9 with its own command line parser in place of ArgParse and NIfTI
 readers and a writer of fixed type, and CLEARSWI 1.8. Until those are registered,
 `juliac/Project.toml` and `App/Project.toml` take them from checkouts beside this
 repository, and `build.jl` checks that both pin the same versions. The `juliac`
@@ -112,10 +112,10 @@ versions and nothing newer, whatever has been released in the meantime:
 
 | Library | Pinned in `App/Project.toml` |
 |---|---|
-| `MriResearchTools` | `= 4.0.0` |
-| `ROMEO` | `= 2.0.0` |
+| `MriResearchTools` | `= 3.9.0` |
+| `ROMEO` | `= 1.7.0` |
 | `CLEARSWI` | `= 1.8.0` |
-| `QuantitativeSusceptibilityMappingTGV` | `= 0.6.0` |
+| `QuantitativeSusceptibilityMappingTGV` | `= 0.5.4` |
 
 Exact pins are the right thing for a reproducible binary, but nothing moves them:
 a release of `MriResearchTools`, `ROMEO` or `CLEARSWI` produces no signal here, so
