@@ -88,8 +88,9 @@ MriResearchTools 3.9 with its own command line parser in place of ArgParse and N
 readers and a writer of fixed type, and CLEARSWI 1.8. Until those are registered,
 `juliac/Project.toml` and `App/Project.toml` take them from checkouts beside this
 repository, and `build.jl` checks that both pin the same versions. The `juliac`
-workflow builds and smoke-tests the bundle on Linux, macOS and Windows; only
-Linux has been tried so far.
+workflow builds and smoke-tests the bundle on Linux, macOS and Windows. The macOS
+bundle is 32 MB. The Windows bundle is 495 MB, because the libraries beside the
+executable are not pruned yet.
 
 What the juliac bundle does not do yet:
 
