@@ -40,9 +40,9 @@ run(`$juliac --output-exe mritools --trim=safe --experimental --bundle $OUT --pr
 # The bundle holds every runtime library of the Julia installation. mritools loads
 # twelve of them, measured with LD_DEBUG=libs; the rest serve Pkg, the REPL and
 # BLAS, whose initialisation mritools.jl turns off. Only the measured set is kept,
-# and FFTW, which clearswi uses, from the artifacts. The executable and the libraries are then stripped of their debug
-# information: Julia ships the libraries unstripped, and that is 34 of their
-# 43 MB.
+# and FFTW, which clearswi uses, from the artifacts. On Linux the executable and
+# the libraries are then stripped of their debug information: Julia ships the
+# libraries unstripped, and that is 34 of their 43 MB.
 const RUNTIME_LIBRARIES = ["libjulia", "libjulia-internal", "libstdc++", "libgcc_s", "libunwind",
                            "libz", "libzstd", "libatomic", "libopenlibm", "libpcre2-8", "libgmp", "libmpfr"]
 library_name(f) = first(split(f, "."; limit=2)) # libfftw3.so.3, libfftw3.3.dylib
@@ -72,13 +72,15 @@ end
 for f in readdir(joinpath(OUT, "share", "julia"))
     f == "artifacts" || rm(joinpath(OUT, "share", "julia", f); force=true, recursive=true)
 end
-if !Sys.iswindows() && Sys.which("strip") !== nothing
+# Linux only. On macOS the debug information is not linked into the binaries, and
+# strip would remove the global symbols Julia looks up in the executable at
+# startup ("Image file failed consistency check") and void the signature juliac
+# gave it.
+if Sys.islinux() && Sys.which("strip") !== nothing
     run(`strip $(joinpath(OUT, "bin", "mritools"))`)
-    if Sys.islinux()
-        for dir in (joinpath(OUT, "lib"), artifacts), (root, _, files) in walkdir(dir), f in files
-            path = joinpath(root, f)
-            occursin(".so", f) && !islink(path) && (chmod(path, 0o755); run(`strip --strip-unneeded $path`))
-        end
+    for dir in (joinpath(OUT, "lib"), artifacts), (root, _, files) in walkdir(dir), f in files
+        path = joinpath(root, f)
+        occursin(".so", f) && !islink(path) && (chmod(path, 0o755); run(`strip --strip-unneeded $path`))
     end
 end
 
