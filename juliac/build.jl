@@ -46,18 +46,20 @@ run(`$juliac --output-exe mritools --trim=safe --experimental --bundle $OUT --pr
 const RUNTIME_LIBRARIES = ["libjulia", "libjulia-internal", "libstdc++", "libgcc_s", "libunwind",
                            "libz", "libzstd", "libatomic", "libopenlibm", "libpcre2-8", "libgmp", "libmpfr"]
 library_name(f) = first(split(f, "."; limit=2)) # libfftw3.so.3, libfftw3.3.dylib
-for (root, _, files) in walkdir(joinpath(OUT, "lib")), f in files
-    endswith(f, ".dll") && continue # Windows keeps all of them beside the executable
+# Windows has no lib directory: the libraries are beside the executable, and all kept.
+libroot = joinpath(OUT, "lib")
+for (root, _, files) in (isdir(libroot) ? walkdir(libroot) : ()), f in files
+    endswith(f, ".dll") && continue
     (occursin(".so", f) || occursin(".dylib", f)) && library_name(f) in RUNTIME_LIBRARIES && continue
     rm(joinpath(root, f))
 end
-# Of the artifacts only FFTW's is used; the certificates are not.
-const ARTIFACT_LIBRARIES = ["libfftw3", "libfftw3f"]
+# Of the artifacts only FFTW's is used; the certificates are not. Its libraries are
+# libfftw3.so.3, libfftw3.3.dylib or libfftw3-3.dll, and the same with libfftw3f.
 artifacts = joinpath(OUT, "share", "julia", "artifacts")
 for artifact in (isdir(artifacts) ? readdir(artifacts) : String[])
     dir = joinpath(artifacts, artifact)
     libdir = joinpath(dir, Sys.iswindows() ? "bin" : "lib")
-    if isdir(libdir) && any(f -> library_name(f) in ARTIFACT_LIBRARIES, readdir(libdir))
+    if isdir(libdir) && any(f -> startswith(f, "libfftw3"), readdir(libdir))
         # the libraries and their licence (FFTW is GPL), not headers or build files
         for f in readdir(dir)
             f in (basename(libdir), "share") || rm(joinpath(dir, f); recursive=true)
