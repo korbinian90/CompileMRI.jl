@@ -1,0 +1,91 @@
+name: juliac
+# Builds mritools as a statically compiled program with juliac (Julia 1.13) and
+# smoke-tests every command. The PackageCompiler bundle in compile.yml is what a
+# release ships; this is the path towards small binaries.
+#
+# Until MriResearchTools 3.9, ROMEO 1.7 and CLEARSWI 1.8 are registered, the
+# [sources] table of juliac/Project.toml takes them from checkouts beside this
+# repository, so the job checks out all four side by side. The libraries come
+# from the branch of the same name as this one when it exists, else from their
+# default branch.
+on:
+  pull_request:
+    paths:
+      - 'juliac/**'
+      - 'App/src/**'
+      - 'App/Project.toml'
+      - '.github/workflows/juliac.yml'
+  workflow_dispatch:
+    inputs:
+      julia_version:
+        description: 'Julia version to build with, 1.13 or newer'
+        required: false
+        default: '1.13'
+permissions:
+  contents: read
+jobs:
+  mritools:
+    name: mritools - ${{ matrix.os }} - Julia ${{ inputs.julia_version || '1.13' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux is the one measured so far. macOS and Windows are here to find
+        # out whether juliac and the pruning in build.jl work there at all.
+        os: [ubuntu-22.04, macos-14, windows-2025]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: CompileMRI.jl
+      - name: Check out the libraries beside it
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          for repo in MriResearchTools.jl ROMEO.jl CLEARSWI.jl; do
+            url="https://github.com/korbinian90/$repo"
+            if git ls-remote --exit-code --heads "$url" "$BRANCH" >/dev/null; then
+              git clone --depth 1 --branch "$BRANCH" "$url" "$repo"
+            else
+              git clone --depth 1 "$url" "$repo"
+            fi
+            echo "$repo: $(git -C "$repo" rev-parse --abbrev-ref HEAD) $(git -C "$repo" rev-parse --short HEAD)"
+          done
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: ${{ inputs.julia_version || '1.13' }}
+      - name: Build
+        run: julia --color=yes CompileMRI.jl/juliac/build.jl build/mritools
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          bin=build/mritools/bin
+          data=CompileMRI.jl/test/data/small
+          $bin/mritools --version
+          $bin/mritools romeo --version
+          $bin/romeo $data/Phase.nii -m $data/Mag.nii -t "[4,8,12]" -o out/romeo -v
+          $bin/clearswi -p $data/Phase.nii -m $data/Mag.nii -t "[4,8,12]" -o out/clearswi
+          $bin/mcpc3ds -p $data/Phase.nii -m $data/Mag.nii -t "[4,8,12]" -o out/mcpc3ds
+          $bin/makehomogeneous -m $data/Mag.nii -o out/makehomogeneous
+          $bin/romeo_mask -p $data/Phase.nii -m $data/Mag.nii -t "[4,8,12]" -o out/romeo_mask
+          for f in romeo/unwrapped.nii clearswi/clearswi.nii mcpc3ds/combined_phase.nii makehomogeneous/homogenous.nii romeo_mask/mask.nii; do
+            test -s "out/$f" || { echo "::error::$f was not written"; exit 1; }
+          done
+          # a wrong command line is an error, not a success
+          if $bin/romeo --no-such-option 2>/dev/null; then echo "::error::a wrong option exited 0"; exit 1; fi
+          du -sh build/mritools
+          echo "**mritools bundle (${{ matrix.os }}):** \`$(du -sh build/mritools | cut -f1)\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: Report the glibc floor
+        if: runner.os == 'Linux'
+        run: |
+          max=$(find build/mritools -type f \( -name '*.so*' -o -perm -u+x \) \
+                  -exec sh -c 'objdump -T "$1" 2>/dev/null | grep -oE "GLIBC_[0-9.]+"' _ {} \; \
+                | sort -uV | tail -1)
+          echo "**Linux glibc floor:** \`${max:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mritools_juliac_${{ matrix.os }}_julia-${{ inputs.julia_version || '1.13' }}
+          path: build/mritools

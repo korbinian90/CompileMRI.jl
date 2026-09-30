@@ -1,25 +1,28 @@
-name = "App"
-uuid = "d128dbd7-c220-4b47-8215-94b2c1b98d91"
+name = "MriToolsStatic"
+uuid = "b3f1c2d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+version = "0.1.0"
 authors = ["Korbinian Eckstein <korbinian90@gmail.com>"]
-version = "4.9.0"
 
 [deps]
 CLEARSWI = "06ae4d9b-ce5e-4813-a1b3-426e46312ec2"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 MriResearchTools = "557dad86-b9bd-4533-8525-1a39684d020f"
-QuantitativeSusceptibilityMappingTGV = "bd393529-335a-4aed-902f-5de61cc7ff49"
 ROMEO = "1ea8258b-a15d-4adb-ad20-01632f467a84"
 
 # Until the pinned versions are registered they come from checkouts beside
-# this repository. Remove this table once they are.
+# this repository. Remove this table once they are, so a build resolves from
+# the registry.
 [sources]
 CLEARSWI = {path = "../../CLEARSWI.jl"}
 MriResearchTools = {path = "../../MriResearchTools.jl"}
-QuantitativeSusceptibilityMappingTGV = {path = "../../QuantitativeSusceptibilityMappingTGV.jl"}
 ROMEO = {path = "../../ROMEO.jl"}
 
+# The same versions as App/Project.toml, which build.jl checks, and FFTW, whose
+# internals mritools.jl replaces. TGV QSM is not
+# here: it does not compile statically yet (see README).
 [compat]
 CLEARSWI = "=1.8.0"
+FFTW = "~1.10"
 MriResearchTools = "=3.9.0"
-QuantitativeSusceptibilityMappingTGV = "=0.5.4"
 ROMEO = "=1.7.0"
-julia = "1.10"
+julia = "1.13"
