@@ -34,6 +34,11 @@ end
 Pkg.activate(HERE)
 Pkg.instantiate()
 
+# OUT is replaced, so it has to be new, empty or an earlier build
+exe = Sys.iswindows() ? "mritools.exe" : "mritools"
+if isdir(OUT) && !isempty(readdir(OUT)) && !isfile(joinpath(OUT, "bin", exe))
+    error("$OUT is neither empty nor an earlier mritools build; give a new or empty directory")
+end
 rm(OUT; force=true, recursive=true)
 run(`$juliac --output-exe mritools --trim=safe --experimental --bundle $OUT --project $HERE $(joinpath(HERE, "mritools.jl"))`)
 
@@ -88,7 +93,6 @@ end
 
 # One name per command: the executable dispatches on the name it is invoked by.
 const COMMANDS = ["romeo", "clearswi", "romeo_mask", "mcpc3ds", "makehomogeneous"]
-exe = Sys.iswindows() ? "mritools.exe" : "mritools"
 for command in COMMANDS
     target = joinpath(OUT, "bin", Sys.iswindows() ? command * ".exe" : command)
     Sys.iswindows() ? cp(joinpath(OUT, "bin", exe), target) : symlink(exe, target)
