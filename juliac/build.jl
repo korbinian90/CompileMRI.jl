@@ -103,6 +103,8 @@ const ROOT = joinpath(HERE, "..")
 cp(joinpath(ROOT, "matlab"), joinpath(OUT, "matlab"))
 cp(joinpath(ROOT, "documentation", "README.md"), joinpath(OUT, "README.md"))
 cp(joinpath(ROOT, "LICENSE"), joinpath(OUT, "LICENSE"))
+cp(joinpath(HERE, "THIRD_PARTY.md"), joinpath(OUT, "THIRD_PARTY.md"))
+cp(normpath(joinpath(Sys.BINDIR, "..", "LICENSE.md")), joinpath(OUT, "LICENSE_Julia.md"))
 Sys.isapple() && cp(joinpath(ROOT, "documentation", "README_macOS.txt"), joinpath(OUT, "README_macOS.txt"))
 
 size_mb(dir) = round(sum(filesize(joinpath(r, f)) for (r, _, fs) in walkdir(dir) for f in fs if !islink(joinpath(r, f))) / 1e6; digits=1)
