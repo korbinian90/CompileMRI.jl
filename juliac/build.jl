@@ -2,8 +2,8 @@
 #
 #     julia juliac/build.jl [output directory]
 #
-# Needs Julia 1.13 or newer and the juliac app (`pkg> app add JuliaC`, which
-# puts `juliac` into ~/.julia/bin). The result is a directory with bin/mritools,
+# Needs Julia 1.13 or newer. It installs the juliac app in the version below
+# (`pkg> app add JuliaC@<version>`, which puts `juliac` into ~/.julia/bin). The result is a directory with bin/mritools,
 # one link (or copy, on Windows) per command beside it, and the runtime
 # libraries it loads, and nothing else: no sysimage, no LLVM, no compiler. Only the code that is reachable from the entry point is
 # compiled, so a library that needs dynamic dispatch would fail the build
@@ -16,17 +16,17 @@ const OUT = abspath(length(ARGS) >= 1 ? ARGS[1] : joinpath(HERE, "..", "build", 
 
 VERSION >= v"1.13.0-" || error("juliac needs Julia 1.13 or newer, this is $VERSION")
 
+# The juliac the bundle is built and tested with. Installed, or switched to, on
+# every build, so that an older or newer juliac on the machine is not used.
+const JULIAC_VERSION = v"0.3.10"
+Pkg.Apps.add([Pkg.PackageSpec(name="JuliaC", version=JULIAC_VERSION)])
 juliac = joinpath(DEPOT_PATH[1], "bin", Sys.iswindows() ? "juliac.bat" : "juliac")
-if !isfile(juliac)
-    @info "installing the juliac app"
-    Pkg.Apps.add("JuliaC")
-end
 
 # The static build and the PackageCompiler App ship the same library versions
 const APP = joinpath(HERE, "..", "App", "Project.toml")
 let app = TOML.parsefile(APP)["compat"], static = TOML.parsefile(joinpath(HERE, "Project.toml"))["compat"]
     for (pkg, pin) in static
-        pkg == "julia" && continue
+        pkg in ("julia", "FFTW") && continue # FFTW is pinned for the internals mritools.jl replaces
         get(app, pkg, nothing) == pin || error("juliac/Project.toml pins $pkg $pin, App/Project.toml $(get(app, pkg, "nothing"))")
     end
 end
