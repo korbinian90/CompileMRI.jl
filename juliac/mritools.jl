@@ -117,7 +117,6 @@ end
 # printed by hand, in the catch block itself: the exception has no static type,
 # so it cannot be passed to a function.
 function (@main)(args::Vector{String})::Cint
-    MriResearchTools.CLI.STATIC_BINARY[] = true
     try
         name = invoked_as()
         name in COMMANDS && return run_command(name, args)
