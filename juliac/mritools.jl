@@ -109,7 +109,7 @@ function invoked_as()
     for (i, c) in pairs(path)
         (c == '/' || c == '\\') && (start = nextind(path, i))
     end
-    name = path[start:end]
+    name = lowercase(path[start:end]) # ROMEO.exe on Windows is romeo
     return endswith(name, ".exe") ? name[1:end-4] : name
 end
 
