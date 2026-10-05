@@ -53,6 +53,32 @@ function test(path, app_name)
     check_version_flag(executable, app_name)
 end
 
+# libjulia finds its libraries through DT_RUNPATH, which the loader searches after
+# LD_LIBRARY_PATH. A libunwind from the user's environment then replaces the bundled one,
+# and Julia segfaults on the first exception. DT_RPATH is searched before LD_LIBRARY_PATH.
+function prefer_bundled_libraries(path)
+    Sys.islinux() || return
+    libdir = joinpath(path, "lib")
+    libs = filter(f -> occursin(r"^libjulia.*\.so", basename(f)) && !islink(f),
+        vcat(readdir(libdir; join=true), readdir(joinpath(libdir, "julia"); join=true)))
+    @assert !isempty(libs)
+    for lib in libs
+        rpath = readchomp(`$(patchelf()) --print-rpath $lib`)
+        isempty(rpath) && continue
+        run(`$(patchelf()) --force-rpath --set-rpath $rpath $lib`)
+    end
+end
+
+# A file that is no library stands in for a foreign libunwind: the program only starts
+# if the loader never looks at it.
+function check_bundled_libraries_first(path, app_name)
+    Sys.islinux() || return
+    decoy = mktempdir()
+    write(joinpath(decoy, "libunwind.so.8"), "not a library")
+    executable = joinpath(path, "bin", app_name)
+    @assert success(addenv(`$executable --version`, "LD_LIBRARY_PATH" => decoy))
+end
+
 function check_version_flag(executable, app_name)
     reported = strip(read(`$executable --version`, String))
     expected = mritools_version()
