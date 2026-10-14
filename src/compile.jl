@@ -10,10 +10,12 @@ function compile(path="compiled";
     apppath = joinpath(dirname(@__DIR__), "App")
     executables=[c=>c for c in apps]
     create_app(apppath, path; executables, filter_stdlibs, precompile_execution_file, include_transitive_dependencies, sysimage_build_args, kw...)
+    prefer_bundled_libraries(path)
 
     for app in apps
         test(path, app)
     end
+    check_bundled_libraries_first(path, first(apps))
 
     copy_matlab(path)
     copy_documentation(path)
