@@ -73,10 +73,11 @@ end
 # if the loader never looks at it.
 function check_bundled_libraries_first(path, app_name)
     Sys.islinux() || return
-    decoy = mktempdir()
-    write(joinpath(decoy, "libunwind.so.8"), "not a library")
     executable = joinpath(path, "bin", app_name)
-    @assert success(addenv(`$executable --version`, "LD_LIBRARY_PATH" => decoy))
+    mktempdir() do decoy
+        write(joinpath(decoy, "libunwind.so.8"), "not a library")
+        @assert success(addenv(`$executable --version`, "LD_LIBRARY_PATH" => decoy))
+    end
 end
 
 function check_version_flag(executable, app_name)
