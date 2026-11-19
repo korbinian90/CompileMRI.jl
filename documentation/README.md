@@ -1,3 +1,5 @@
+> **Research use only. Not a medical device. Not intended for diagnosis, treatment or clinical decisions.**
+
 # Executables
 The folder `bin` contains the executables `romeo`, `clearswi`, `mcpc3ds`,
 `makehomogeneous` and `romeo_mask`
