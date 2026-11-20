@@ -1,5 +1,7 @@
 # CompileMRI - mritools
 
+> **Research use only. Not a medical device. Not intended for diagnosis, treatment or clinical decisions.**
+
 [![Build Status](https://github.com/korbinian90/CompileMRI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CompileMRI.jl/actions)
 
 ## [Download executables for ROMEO, CLEAR-SWI and MCPC-3D-S (Linux and Windows)](https://github.com/korbinian90/CompileMRI.jl/releases)

@@ -11,6 +11,7 @@ function getargs(args::AbstractVector, version)
     end
     s = ArgParseSettings(;
         exc_handler=exception_handler,
+        description="Research use only. Not a medical device. Not intended for diagnosis, treatment or clinical decisions.",
         add_version=true,
         version,
     )
